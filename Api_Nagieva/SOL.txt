@@ -1,315 +1,146 @@
---USE master;
---GO
---IF DB_ID('MarketplaceDB') IS NOT NULL
---BEGIN
---    ALTER DATABASE MarketplaceDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
---    DROP DATABASE MarketplaceDB;
---END
---GO
-
---CREATE DATABASE MarketplaceDB;
---GO
+CREATE DATABASE MarketplaceDB;
+GO
 
 USE MarketplaceDB;
 GO
 
 CREATE TABLE Roles (
-    RoleId   INT IDENTITY(1,1) PRIMARY KEY,
-    RoleName NVARCHAR(50) NOT NULL UNIQUE
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE
 );
-GO
-
-CREATE TABLE OrderStatuses (
-    StatusId   INT IDENTITY(1,1) PRIMARY KEY,
-    StatusName NVARCHAR(50) NOT NULL UNIQUE
-);
-GO
-
-CREATE TABLE DeliveryTypes (
-    DeliveryTypeId   INT IDENTITY(1,1) PRIMARY KEY,
-    DeliveryTypeName NVARCHAR(50) NOT NULL UNIQUE
-);
-GO
-
-CREATE TABLE Categories (
-    CategoryId   INT IDENTITY(1,1) PRIMARY KEY,
-    CategoryName NVARCHAR(100) NOT NULL UNIQUE,
-    Description  NVARCHAR(500) NULL
-);
-GO
-
-CREATE TABLE PickupPoints (
-    PickupPointId INT IDENTITY(1,1) PRIMARY KEY,
-    City          NVARCHAR(100) NOT NULL,
-    Address       NVARCHAR(300) NOT NULL,
-    Phone         NVARCHAR(30)  NULL,
-    WorkingHours  NVARCHAR(100) NULL,
-    IsActive      BIT NOT NULL DEFAULT 1
-);
-GO
-
--- ============================================================
---  ПОЛЬЗОВАТЕЛИ
--- ============================================================
 
 CREATE TABLE Users (
-    UserId       INT IDENTITY(1,1) PRIMARY KEY,
-    Login        NVARCHAR(100) NOT NULL UNIQUE,
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Login NVARCHAR(100) NOT NULL UNIQUE,
     PasswordHash NVARCHAR(255) NOT NULL,
-    RoleId       INT NOT NULL,
-    CreatedAt    DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
+    RoleId INT NOT NULL,
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
-GO
 
--- ============================================================
---  ТОВАРЫ
--- ============================================================
+CREATE TABLE Categories (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL UNIQUE
+);
 
 CREATE TABLE Products (
-    ProductId        INT IDENTITY(1,1) PRIMARY KEY,
-    Name             NVARCHAR(200)  NOT NULL,
-    Description      NVARCHAR(2000) NULL,
-    Price            DECIMAL(18,2)  NOT NULL,
-    CategoryId       INT            NOT NULL,
-    ImagePath        NVARCHAR(300)  NULL,
-    StockQuantity    INT            NOT NULL DEFAULT 0,
-    UnitsPerPackage  INT            NULL,
-    IsAvailable      BIT            NOT NULL DEFAULT 1,
-    Rating           DECIMAL(3,2)   NOT NULL DEFAULT 0,
-    CreatedAt        DATETIME2      NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT FK_Products_Categories FOREIGN KEY (CategoryId) REFERENCES Categories(CategoryId),
-    CONSTRAINT CK_Products_Price      CHECK (Price >= 0),
-    CONSTRAINT CK_Products_Stock      CHECK (StockQuantity >= 0)
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL,
+    Description NVARCHAR(MAX) NULL,
+    Price DECIMAL(18,2) NOT NULL CHECK (Price >= 0),
+    ImagePath NVARCHAR(255) NULL,
+    CategoryId INT NOT NULL,
+    StockQuantity INT NOT NULL CHECK (StockQuantity >= 0),
+    PackQuantity INT NULL CHECK (PackQuantity > 0),
+    IsAvailable BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
 );
-GO
-
-CREATE INDEX IX_Products_Name     ON Products(Name);
-CREATE INDEX IX_Products_Category ON Products(CategoryId);
-CREATE INDEX IX_Products_Price    ON Products(Price);
-GO
-
--- ============================================================
---  ОТЗЫВЫ
--- ============================================================
 
 CREATE TABLE Reviews (
-    ReviewId  INT IDENTITY(1,1) PRIMARY KEY,
+    Id INT IDENTITY(1,1) PRIMARY KEY,
     ProductId INT NOT NULL,
-    UserId    INT NOT NULL,
-    Rating    INT NOT NULL,
-    Comment   NVARCHAR(2000) NULL,
-    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT FK_Reviews_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductId) ON DELETE CASCADE,
-    CONSTRAINT FK_Reviews_Users    FOREIGN KEY (UserId)    REFERENCES Users(UserId),
-    CONSTRAINT CK_Reviews_Rating   CHECK (Rating BETWEEN 1 AND 5),
-    CONSTRAINT UQ_Reviews_UserProduct UNIQUE (ProductId, UserId)
+    UserId INT NOT NULL,
+    Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
+    Comment NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
 );
-GO
-
--- Триггер для пересчета среднего рейтинга
-CREATE TRIGGER trg_Reviews_UpdateRating
-ON Reviews
-AFTER INSERT, UPDATE, DELETE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE p
-    SET p.Rating = ISNULL((
-        SELECT AVG(CAST(r.Rating AS DECIMAL(3,2)))
-        FROM Reviews r WHERE r.ProductId = p.ProductId
-    ), 0)
-    FROM Products p
-    WHERE p.ProductId IN (SELECT ProductId FROM inserted
-                          UNION
-                          SELECT ProductId FROM deleted);
-END;
-GO
-
--- ============================================================
---  ИЗБРАННОЕ И КОРЗИНА
--- ============================================================
 
 CREATE TABLE Favorites (
-    FavoriteId INT IDENTITY(1,1) PRIMARY KEY,
-    UserId     INT NOT NULL,
-    ProductId  INT NOT NULL,
-    AddedAt    DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT FK_Fav_Users    FOREIGN KEY (UserId)    REFERENCES Users(UserId)    ON DELETE CASCADE,
-    CONSTRAINT FK_Fav_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductId) ON DELETE CASCADE,
-    CONSTRAINT UQ_Favorites UNIQUE (UserId, ProductId)
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    PRIMARY KEY (UserId, ProductId),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
 );
-GO
 
 CREATE TABLE CartItems (
-    CartItemId INT IDENTITY(1,1) PRIMARY KEY,
-    UserId     INT NOT NULL,
-    ProductId  INT NOT NULL,
-    Quantity   INT NOT NULL DEFAULT 1,
-    AddedAt    DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT FK_Cart_Users    FOREIGN KEY (UserId)    REFERENCES Users(UserId)    ON DELETE CASCADE,
-    CONSTRAINT FK_Cart_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductId) ON DELETE CASCADE,
-    CONSTRAINT UQ_Cart UNIQUE (UserId, ProductId),
-    CONSTRAINT CK_Cart_Quantity CHECK (Quantity > 0)
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PRIMARY KEY (UserId, ProductId),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
 );
-GO
 
--- ============================================================
---  ЗАКАЗЫ
--- ============================================================
+CREATE TABLE PickupPoints (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Address NVARCHAR(255) NOT NULL
+);
+
+CREATE TABLE OrderStatuses (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE
+);
 
 CREATE TABLE Orders (
-    OrderId         INT IDENTITY(1,1) PRIMARY KEY,
-    UserId          INT NOT NULL,
-    OrderDate       DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-    TotalAmount     DECIMAL(18,2) NOT NULL,
-    DeliveryTypeId  INT NOT NULL,
-    DeliveryAddress NVARCHAR(500) NULL,
-    PickupPointId   INT NULL,
-    StatusId        INT NOT NULL,
-    CONSTRAINT FK_Orders_Users        FOREIGN KEY (UserId)         REFERENCES Users(UserId),
-    CONSTRAINT FK_Orders_DelTypes     FOREIGN KEY (DeliveryTypeId) REFERENCES DeliveryTypes(DeliveryTypeId),
-    CONSTRAINT FK_Orders_PickupPoints FOREIGN KEY (PickupPointId)  REFERENCES PickupPoints(PickupPointId),
-    CONSTRAINT FK_Orders_Statuses     FOREIGN KEY (StatusId)       REFERENCES OrderStatuses(StatusId),
-    CONSTRAINT CK_Orders_Total        CHECK (TotalAmount >= 0),
-    CONSTRAINT CK_Orders_MinDelivery  CHECK (TotalAmount >= 600 OR DeliveryTypeId = 2),
-    CONSTRAINT CK_Orders_DeliveryInfo CHECK (
-        (DeliveryTypeId = 1 AND DeliveryAddress IS NOT NULL) OR
-        (DeliveryTypeId = 2 AND PickupPointId IS NOT NULL)
-    )
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    StatusId INT NOT NULL,
+    DeliveryType NVARCHAR(50) NOT NULL CHECK (DeliveryType IN ('Courier', 'Pickup')),
+    PickupPointId INT NULL,
+    DeliveryAddress NVARCHAR(255) NULL,
+    TotalAmount DECIMAL(18,2) NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (StatusId) REFERENCES OrderStatuses(Id),
+    FOREIGN KEY (PickupPointId) REFERENCES PickupPoints(Id)
 );
-GO
 
 CREATE TABLE OrderItems (
-    OrderItemId     INT IDENTITY(1,1) PRIMARY KEY,
-    OrderId         INT NOT NULL,
-    ProductId       INT NOT NULL,
-    ProductName     NVARCHAR(200) NOT NULL,
-    Quantity        INT NOT NULL,
-    PriceAtPurchase DECIMAL(18,2) NOT NULL,
-    CONSTRAINT FK_OI_Orders   FOREIGN KEY (OrderId)   REFERENCES Orders(OrderId)   ON DELETE CASCADE,
-    CONSTRAINT FK_OI_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductId),
-    CONSTRAINT CK_OI_Quantity CHECK (Quantity > 0),
-    CONSTRAINT CK_OI_Price    CHECK (PriceAtPurchase >= 0)
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    OrderId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PriceAtPurchase DECIMAL(18,2) NOT NULL CHECK (PriceAtPurchase >= 0),
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
 );
-GO
 
--- ============================================================
---  ПРЕДСТАВЛЕНИЕ (Исправлено: теперь идет отдельным пакетом)
--- ============================================================
+INSERT INTO Roles (Name) VALUES ('Admin'), ('User');
 
-CREATE VIEW vw_ProductDetails AS
-SELECT  p.ProductId, p.Name, p.Description, p.Price,
-        c.CategoryName, p.ImagePath, p.StockQuantity,
-        p.UnitsPerPackage, p.IsAvailable, p.Rating,
-        (SELECT COUNT(*) FROM Reviews r WHERE r.ProductId = p.ProductId) AS ReviewCount
-FROM Products p
-JOIN Categories c ON c.CategoryId = p.CategoryId;
-GO
-
--- ============================================================
---  ЗАПОЛНЕНИЕ ДАННЫХ
--- ============================================================
-
--- Роли: User=1, Admin=2
-INSERT INTO Roles (RoleName) VALUES (N'User'), (N'Admin');
-GO
-
--- Статусы заказов
-INSERT INTO OrderStatuses (StatusName) VALUES
-    (N'Оформлен'),
-    (N'В обработке'),
-    (N'Передан в доставку'),
-    (N'Готов к выдаче'),
-    (N'Получен'),
-    (N'Отменён');
-GO
-
--- Типы доставки
-INSERT INTO DeliveryTypes (DeliveryTypeName) VALUES (N'Доставка'), (N'Самовывоз');
-GO
-
--- Категории
-INSERT INTO Categories (CategoryName, Description) VALUES
-    (N'Электроника', N'Смартфоны, гаджеты, техника'),
-    (N'Одежда',      N'Одежда и обувь'),
-    (N'Продукты',    N'Продукты питания'),
-    (N'Книги',       N'Книги и учебники'),
-    (N'Косметика',   N'Косметика и уход'),
-    (N'Спорт',       N'Спортивные товары');
-GO
-
--- Пользователи (4 человека: 1 админ + 3 юзера)
 INSERT INTO Users (Login, PasswordHash, RoleId) VALUES
-    (N'admin',  CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', 'admin123'), 2), 2),
-    (N'alina',  CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', '123'), 2), 1),
-    (N'sofi',   CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', '123'), 2), 1),
-    (N'ksusha', CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', '123'), 2), 1);
-GO
+('nagiev_prime', 'hash_of_password_123', 1),
+('student', 'hash_of_password_321', 2),
+('vasya_pokupatel', 'hash_of_password_444', 2);
 
--- ПВЗ
-INSERT INTO PickupPoints (City, Address, Phone, WorkingHours) VALUES
-    (N'Москва',          N'ул. Ленина, 10',        N'+7 (900) 111-22-33', N'09:00–21:00'),
-    (N'Москва',          N'пр. Мира, 42',          N'+7 (900) 111-22-44', N'10:00–22:00'),
-    (N'Санкт-Петербург', N'Невский пр., 100',      N'+7 (900) 111-22-55', N'09:00–20:00'),
-    (N'Казань',          N'ул. Баумана, 15',       N'+7 (900) 111-22-66', N'10:00–21:00');
-GO
+INSERT INTO Categories (Name) VALUES
+('Сыры'),
+('Электроника'),
+('Мерч');
 
--- Товары
-INSERT INTO Products
-(Name, Description, Price, CategoryId, ImagePath, StockQuantity, UnitsPerPackage, IsAvailable)
-VALUES
-    (N'iPhone 15',             N'Смартфон Apple, 128 ГБ',                   79990, 1, N'Images/iphone15.jpg',     10,  NULL, 1),
-    (N'Samsung Galaxy S24',    N'Флагман Samsung, 256 ГБ',                  69990, 1, N'Images/galaxy_s24.jpg',    7,  NULL, 1),
-    (N'Футболка хлопковая',    N'Унисекс, 100% хлопок',                      1200, 2, N'Images/tshirt.jpg',       50,  NULL, 1),
-    (N'Джинсы классические',   N'Синие, размеры 28–40',                      3500, 2, N'Images/jeans.jpg',        25,  NULL, 1),
-    (N'Кофе Nescafe (упак.)',  N'Растворимый, упаковка 100 стиков',            450, 3, N'Images/nescafe.jpg',      40,   100, 1),
-    (N'Шоколад «Алёнка»',      N'Молочный, 100 г',                             120, 3, N'Images/alenka.jpg',      200,  NULL, 1),
-    (N'Книга «Война и мир»',   N'Л. Н. Толстой, 2 тома',                       900, 4, N'Images/war_and_peace.jpg',30,  NULL, 1),
-    (N'Крем для лица',         N'Увлажняющий, 50 мл',                          850, 5, N'Images/face_cream.jpg',   60,  NULL, 1),
-    (N'Гантели 5 кг',          N'Пара разборных гантелей',                    2000, 6, N'Images/dumbbells.jpg',    15,  NULL, 1),
-    (N'iPhone 14 (архив)',     N'Снят с продажи',                             59990, 1, N'Images/iphone14.jpg',      0,  NULL, 0);
-GO
+INSERT INTO Products (Name, Description, Price, ImagePath, CategoryId, StockQuantity, PackQuantity, IsAvailable) VALUES
+('Камамбер в кармане', 'Отличный сыр от праймового Нагиева', 450.00, 'camembert.jpg', 1, 50, 1, 1),
+('Ноутбук для кодинга API', 'Потянет и базу данных, и WPF', 85000.00, 'laptop.jpg', 2, 5, NULL, 1),
+('Футболка GMWOG', 'Для настоящих инвесторов', 1200.00, 'tshirt.jpg', 3, 0, NULL, 0);
 
--- Отзывы
+INSERT INTO PickupPoints (Name, Address) VALUES
+('ПВЗ Дубай-Центр', 'г. Дубай, Бурдж-Халифа, 1'),
+('ПВЗ у Васи', 'г. Москва, ул. Пушкина, дом Колотушкина');
+
+INSERT INTO OrderStatuses (Name) VALUES
+('Оформлен'),
+('В обработке'),
+('Передан в доставку'),
+('Готов к выдаче'),
+('Получен'),
+('Отменён');
+
 INSERT INTO Reviews (ProductId, UserId, Rating, Comment) VALUES
-    (1, 2, 5, N'Отличный телефон, камера супер!'),
-    (1, 3, 4, N'Хорош, но батарея могла быть лучше.'),
-    (2, 2, 4, N'Быстрый, яркий экран.'),
-    (5, 3, 4, N'Норм кофе за свои деньги.'),
-    (5, 4, 5, N'Беру уже третий раз.');
-GO
+(1, 2, 5, 'Сыр просто пушка, 4.9 надо брать!'),
+(2, 3, 1, '1.3... Ладно, сегодня без приключений, не включается.');
 
--- Корзина alina (UserId = 2)
 INSERT INTO CartItems (UserId, ProductId, Quantity) VALUES
-    (2, 3, 2),
-    (2, 6, 5);
-GO
+(2, 1, 2);
 
--- Избранное sofi (UserId = 3)
 INSERT INTO Favorites (UserId, ProductId) VALUES
-    (3, 1),
-    (3, 2);
-GO
+(3, 2);
 
--- Заказ №1: alina, доставка (>600), Оформлен
-INSERT INTO Orders (UserId, TotalAmount, DeliveryTypeId, DeliveryAddress, StatusId)
-VALUES (2, 80890.00, 1, N'г. Москва, ул. Тверская, 1, кв. 5', 1);
-GO
+INSERT INTO Orders (UserId, StatusId, DeliveryType, PickupPointId, DeliveryAddress, TotalAmount) VALUES
+(2, 5, 'Pickup', 2, NULL, 450.00),
+(3, 2, 'Courier', NULL, 'г. Москва, проспект Мира, 10', 85000.00);
 
-INSERT INTO OrderItems (OrderId, ProductId, ProductName, Quantity, PriceAtPurchase) VALUES
-    (1, 1, N'iPhone 15',            1, 79990.00),
-    (1, 5, N'Кофе Nescafe (упак.)', 2,   450.00);
-GO
-
--- Заказ №2: ksusha, самовывоз (<600), Получен
-INSERT INTO Orders (UserId, TotalAmount, DeliveryTypeId, PickupPointId, StatusId)
-VALUES (4, 240.00, 2, 1, 5);
-GO
-
-INSERT INTO OrderItems (OrderId, ProductId, ProductName, Quantity, PriceAtPurchase) VALUES
-    (2, 6, N'Шоколад «Алёнка»', 2, 120.00);
-GO
-
-PRINT N'База данных MarketplaceDB успешно создана. Все 4 пользователя добавлены.';
-GO
+INSERT INTO OrderItems (OrderId, ProductId, Quantity, PriceAtPurchase) VALUES
+(1, 1, 1, 450.00),
+(2, 2, 1, 85000.00);
