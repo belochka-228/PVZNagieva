@@ -1,0 +1,6 @@
+@Api_Nagieva_HostAddress = http://localhost:5067
+
+GET {{Api_Nagieva_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

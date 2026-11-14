@@ -1,0 +1,146 @@
+CREATE DATABASE MarketplaceDB;
+GO
+
+USE MarketplaceDB;
+GO
+
+CREATE TABLE Roles (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE Users (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Login NVARCHAR(100) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(255) NOT NULL,
+    RoleId INT NOT NULL,
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+);
+
+CREATE TABLE Categories (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE Products (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL,
+    Description NVARCHAR(MAX) NULL,
+    Price DECIMAL(18,2) NOT NULL CHECK (Price >= 0),
+    ImagePath NVARCHAR(255) NULL,
+    CategoryId INT NOT NULL,
+    StockQuantity INT NOT NULL CHECK (StockQuantity >= 0),
+    PackQuantity INT NULL CHECK (PackQuantity > 0),
+    IsAvailable BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
+);
+
+CREATE TABLE Reviews (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ProductId INT NOT NULL,
+    UserId INT NOT NULL,
+    Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
+    Comment NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+CREATE TABLE Favorites (
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    PRIMARY KEY (UserId, ProductId),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+CREATE TABLE CartItems (
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PRIMARY KEY (UserId, ProductId),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+CREATE TABLE PickupPoints (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Address NVARCHAR(255) NOT NULL
+);
+
+CREATE TABLE OrderStatuses (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE Orders (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    StatusId INT NOT NULL,
+    DeliveryType NVARCHAR(50) NOT NULL CHECK (DeliveryType IN ('Courier', 'Pickup')),
+    PickupPointId INT NULL,
+    DeliveryAddress NVARCHAR(255) NULL,
+    TotalAmount DECIMAL(18,2) NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (StatusId) REFERENCES OrderStatuses(Id),
+    FOREIGN KEY (PickupPointId) REFERENCES PickupPoints(Id)
+);
+
+CREATE TABLE OrderItems (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    OrderId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PriceAtPurchase DECIMAL(18,2) NOT NULL CHECK (PriceAtPurchase >= 0),
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+INSERT INTO Roles (Name) VALUES ('Admin'), ('User');
+
+INSERT INTO Users (Login, PasswordHash, RoleId) VALUES
+('nagiev_prime', 'hash_of_password_123', 1),
+('student', 'hash_of_password_321', 2),
+('vasya_pokupatel', 'hash_of_password_444', 2);
+
+INSERT INTO Categories (Name) VALUES
+('Сыры'),
+('Электроника'),
+('Мерч');
+
+INSERT INTO Products (Name, Description, Price, ImagePath, CategoryId, StockQuantity, PackQuantity, IsAvailable) VALUES
+('Камамбер в кармане', 'Отличный сыр от праймового Нагиева', 450.00, 'camembert.jpg', 1, 50, 1, 1),
+('Ноутбук для кодинга API', 'Потянет и базу данных, и WPF', 85000.00, 'laptop.jpg', 2, 5, NULL, 1),
+('Футболка GMWOG', 'Для настоящих инвесторов', 1200.00, 'tshirt.jpg', 3, 0, NULL, 0);
+
+INSERT INTO PickupPoints (Name, Address) VALUES
+('ПВЗ Дубай-Центр', 'г. Дубай, Бурдж-Халифа, 1'),
+('ПВЗ у Васи', 'г. Москва, ул. Пушкина, дом Колотушкина');
+
+INSERT INTO OrderStatuses (Name) VALUES
+('Оформлен'),
+('В обработке'),
+('Передан в доставку'),
+('Готов к выдаче'),
+('Получен'),
+('Отменён');
+
+INSERT INTO Reviews (ProductId, UserId, Rating, Comment) VALUES
+(1, 2, 5, 'Сыр просто пушка, 4.9 надо брать!'),
+(2, 3, 1, '1.3... Ладно, сегодня без приключений, не включается.');
+
+INSERT INTO CartItems (UserId, ProductId, Quantity) VALUES
+(2, 1, 2);
+
+INSERT INTO Favorites (UserId, ProductId) VALUES
+(3, 2);
+
+INSERT INTO Orders (UserId, StatusId, DeliveryType, PickupPointId, DeliveryAddress, TotalAmount) VALUES
+(2, 5, 'Pickup', 2, NULL, 450.00),
+(3, 2, 'Courier', NULL, 'г. Москва, проспект Мира, 10', 85000.00);
+
+INSERT INTO OrderItems (OrderId, ProductId, Quantity, PriceAtPurchase) VALUES
+(1, 1, 1, 450.00),
+(2, 2, 1, 85000.00);
