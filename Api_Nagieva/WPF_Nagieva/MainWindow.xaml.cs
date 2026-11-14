@@ -1,28 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using WPF_Nagieva.DTO;
+using WPF_Nagieva.Services;
 
 namespace WPF_Nagieva
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+
+            MainFrame.Navigate(new CatalogPage());
+        }
+
+        private void BtnCatalog_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new CatalogPage());
+        }
+
+        private void BtnCart_Click(object sender, RoutedEventArgs e)
+        {
+            CartWindow cartWindow = new CartWindow();
+            cartWindow.ShowDialog();
+        }
+
+        private void BtnLogin_Click(object sender, RoutedEventArgs e)
+        {
+            LoginWindow loginWindow = new LoginWindow();
+            if (loginWindow.ShowDialog() == true)
+            {
+                BtnLogin.Content = "Выйти";
+                MessageBox.Show("Вы успешно вошли в систему!");
+            }
         }
     }
 }

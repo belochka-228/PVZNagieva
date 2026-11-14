@@ -7,6 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#2C3E50" Padding="15">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="BtnCatalog" Content="Каталог" Width="120" Height="35" Margin="0,0,10,0" Click="BtnCatalog_Click"/>
+                <Button x:Name="BtnCart" Content="Корзина" Width="120" Height="35" Margin="0,0,10,0" Click="BtnCart_Click"/>
+                <Button x:Name="BtnLogin" Content="Войти" Width="120" Height="35" HorizontalAlignment="Right" Click="BtnLogin_Click"/>
+            </StackPanel>
+        </Border>
+
+        <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>
