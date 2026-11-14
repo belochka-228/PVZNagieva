@@ -29,9 +29,9 @@ public partial class Product
 
     public virtual Category Category { get; set; }
 
+    public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

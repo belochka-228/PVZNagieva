@@ -1,5 +1,4 @@
-﻿using Api_Nagieva.Data;
-using Api_Nagieva.DTO;
+﻿using Api_Nagieva.DTO;
 using Api_Nagieva.Models;
 using Microsoft.EntityFrameworkCore;
 

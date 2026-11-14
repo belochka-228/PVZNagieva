@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Api_Nagieva;
 
 namespace Api_Nagieva.Models;
 
@@ -21,6 +20,8 @@ public partial class MarketplaceDBContext : DbContext
     public virtual DbSet<CartItem> CartItems { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<Favorite> Favorites { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
@@ -68,6 +69,23 @@ public partial class MarketplaceDBContext : DbContext
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Favorite>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.ProductId }).HasName("PK__Favorite__DCC8002030A384EA");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Favorites)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Favorites__Produ__4D94879B");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Favorites)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Favorites__UserI__4CA06362");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -198,23 +216,6 @@ public partial class MarketplaceDBContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__3A81B327");
-
-            entity.HasMany(d => d.Products).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Favorite",
-                    r => r.HasOne<Product>().WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Favorites__Produ__4D94879B"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Favorites__UserI__4CA06362"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "ProductId").HasName("PK__Favorite__DCC8002030A384EA");
-                        j.ToTable("Favorites");
-                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

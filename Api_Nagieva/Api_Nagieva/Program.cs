@@ -1,4 +1,3 @@
-using Api_Nagieva.Data;
 using Api_Nagieva.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +14,10 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<FavoriteService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<PickupPointService>();
 
 builder.Services.AddControllers();
 
