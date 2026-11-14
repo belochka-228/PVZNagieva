@@ -1,5 +1,5 @@
 ﻿{
-   "CodeGenerationMode": 4,
+   "CodeGenerationMode": 5,
    "ContextClassName": "MarketplaceDBContext",
    "ContextNamespace": null,
    "FilterSchemas": false,

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <None Include="efpt.config.json.user" />
   </ItemGroup>
 
   <ItemGroup>

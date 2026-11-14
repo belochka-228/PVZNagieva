@@ -3,10 +3,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Api_Nagieva.Models;
+using Api_Nagieva;
 
-namespace Api_Nagieva.Data;
- 
+namespace Api_Nagieva.Models;
+
 public partial class MarketplaceDBContext : DbContext
 {
     public MarketplaceDBContext()
@@ -40,30 +40,30 @@ public partial class MarketplaceDBContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=WIN-49VOKS7VB4H;Initial Catalog=MarketplaceDB;Integrated Security=True;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MarketplaceDB;Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CartItem>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.ProductId }).HasName("PK__CartItem__DCC80020F6385404");
+            entity.HasKey(e => new { e.UserId, e.ProductId }).HasName("PK__CartItem__DCC80020EE51CF00");
 
             entity.HasOne(d => d.Product).WithMany(p => p.CartItems)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CartItems__Produ__534D60F1");
+                .HasConstraintName("FK__CartItems__Produ__52593CB8");
 
             entity.HasOne(d => d.User).WithMany(p => p.CartItems)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CartItems__UserI__52593CB8");
+                .HasConstraintName("FK__CartItems__UserI__5165187F");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Categori__3214EC07C316AF52");
+            entity.HasKey(e => e.Id).HasName("PK__Categori__3214EC07AD24C1EC");
 
-            entity.HasIndex(e => e.Name, "UQ__Categori__737584F6EA3F14A8").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__Categori__737584F63FDBA9D7").IsUnique();
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -72,7 +72,7 @@ public partial class MarketplaceDBContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC07466BEA33");
+            entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC073E808FF3");
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.DeliveryAddress).HasMaxLength(255);
@@ -83,41 +83,41 @@ public partial class MarketplaceDBContext : DbContext
 
             entity.HasOne(d => d.PickupPoint).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.PickupPointId)
-                .HasConstraintName("FK__Orders__PickupPo__5EBF139D");
+                .HasConstraintName("FK__Orders__PickupPo__5DCAEF64");
 
             entity.HasOne(d => d.Status).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Orders__StatusId__5DCAEF64");
+                .HasConstraintName("FK__Orders__StatusId__5CD6CB2B");
 
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Orders__UserId__5CD6CB2B");
+                .HasConstraintName("FK__Orders__UserId__5BE2A6F2");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderIte__3214EC072D582E0B");
+            entity.HasKey(e => e.Id).HasName("PK__OrderIte__3214EC070A811FD1");
 
             entity.Property(e => e.PriceAtPurchase).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Order__6383C8BA");
+                .HasConstraintName("FK__OrderItem__Order__628FA481");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Produ__6477ECF3");
+                .HasConstraintName("FK__OrderItem__Produ__6383C8BA");
         });
 
         modelBuilder.Entity<OrderStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC077725383B");
+            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC0707365DB6");
 
-            entity.HasIndex(e => e.Name, "UQ__OrderSta__737584F61BC4A865").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__OrderSta__737584F6FD6A288E").IsUnique();
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -126,7 +126,7 @@ public partial class MarketplaceDBContext : DbContext
 
         modelBuilder.Entity<PickupPoint>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PickupPo__3214EC07BE262C1D");
+            entity.HasKey(e => e.Id).HasName("PK__PickupPo__3214EC0794494167");
 
             entity.Property(e => e.Address)
                 .IsRequired()
@@ -138,7 +138,7 @@ public partial class MarketplaceDBContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Products__3214EC07E1FEA385");
+            entity.HasKey(e => e.Id).HasName("PK__Products__3214EC072B542004");
 
             entity.Property(e => e.ImagePath).HasMaxLength(255);
             entity.Property(e => e.IsAvailable).HasDefaultValue(true);
@@ -150,31 +150,31 @@ public partial class MarketplaceDBContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Products__Catego__44FF419A");
+                .HasConstraintName("FK__Products__Catego__440B1D61");
         });
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Reviews__3214EC07E6AFF78F");
+            entity.HasKey(e => e.Id).HasName("PK__Reviews__3214EC07637E6059");
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Reviews__Product__49C3F6B7");
+                .HasConstraintName("FK__Reviews__Product__48CFD27E");
 
             entity.HasOne(d => d.User).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Reviews__UserId__4AB81AF0");
+                .HasConstraintName("FK__Reviews__UserId__49C3F6B7");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC07E69D114E");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC07E8993AF1");
 
-            entity.HasIndex(e => e.Name, "UQ__Roles__737584F672F460BA").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__Roles__737584F6308422FB").IsUnique();
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -183,9 +183,9 @@ public partial class MarketplaceDBContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07C3777E37");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC074E407F51");
 
-            entity.HasIndex(e => e.Login, "UQ__Users__5E55825B364C3EF0").IsUnique();
+            entity.HasIndex(e => e.Login, "UQ__Users__5E55825B2F6A61CB").IsUnique();
 
             entity.Property(e => e.Login)
                 .IsRequired()
@@ -197,7 +197,7 @@ public partial class MarketplaceDBContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Users__RoleId__3B75D760");
+                .HasConstraintName("FK__Users__RoleId__3A81B327");
 
             entity.HasMany(d => d.Products).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
@@ -205,14 +205,14 @@ public partial class MarketplaceDBContext : DbContext
                     r => r.HasOne<Product>().WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Favorites__Produ__4E88ABD4"),
+                        .HasConstraintName("FK__Favorites__Produ__4D94879B"),
                     l => l.HasOne<User>().WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Favorites__UserI__4D94879B"),
+                        .HasConstraintName("FK__Favorites__UserI__4CA06362"),
                     j =>
                     {
-                        j.HasKey("UserId", "ProductId").HasName("PK__Favorite__DCC80020EB9107E7");
+                        j.HasKey("UserId", "ProductId").HasName("PK__Favorite__DCC8002030A384EA");
                         j.ToTable("Favorites");
                     });
         });
