@@ -26,6 +26,7 @@ namespace WPF_Nagieva
                     if (result != null)
                     {
                         ApiClient.SetToken(result.AccessToken);
+                        ApiClient.CurrentUserRole = result.Role;
                         MessageBox.Show($"Добро пожаловать, {result.Login}!\nРоль: {result.Role}", "Успех");
                         this.DialogResult = true;
                         this.Close();

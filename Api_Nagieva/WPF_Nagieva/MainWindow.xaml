@@ -16,6 +16,8 @@
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="BtnCatalog" Content="Каталог" Width="120" Height="35" Margin="0,0,10,0" Click="BtnCatalog_Click"/>
                 <Button x:Name="BtnCart" Content="Корзина" Width="120" Height="35" Margin="0,0,10,0" Click="BtnCart_Click"/>
+                <Button x:Name="BtnFavorites" Content="Избранное" Width="120" Height="35" Margin="0,0,10,0" Click="BtnFavorites_Click"/>
+                <Button x:Name="BtnHistory" Content="История" Width="120" Height="35" Margin="0,0,10,0" Click="BtnHistory_Click"/>
                 <Button x:Name="BtnLogin" Content="Войти" Width="120" Height="35" HorizontalAlignment="Right" Click="BtnLogin_Click"/>
             </StackPanel>
         </Border>

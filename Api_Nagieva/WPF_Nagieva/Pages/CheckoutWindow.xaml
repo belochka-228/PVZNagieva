@@ -1,0 +1,38 @@
+﻿<Window x:Class="WPF_Nagieva.Pages.CheckoutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Nagieva.Pages"
+        mc:Ignorable="d"
+        Title="CheckoutWindow" Height="450" Width="800">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="TxtTotalInfo" Text="Сумма заказа: 0 руб." FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <RadioButton x:Name="RbPickup" Content="Самовывоз (ПВЗ)" FontSize="16" Margin="0,0,20,0" Checked="DeliveryType_Changed"/>
+            <RadioButton x:Name="RbCourier" Content="Доставка курьером" FontSize="16" Checked="DeliveryType_Changed"/>
+        </StackPanel>
+
+        <StackPanel x:Name="PanelPickup" Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock Text="Выберите пункт выдачи:" Margin="0,0,0,5"/>
+            <ComboBox x:Name="CbPickupPoints" Height="30" DisplayMemberPath="Address" SelectedValuePath="Id"/>
+        </StackPanel>
+
+        <StackPanel x:Name="PanelCourier" Grid.Row="3" Margin="0,10,0,0" Visibility="Collapsed">
+            <TextBlock Text="Введите адрес доставки:" Margin="0,0,0,5"/>
+            <TextBox x:Name="TxtAddress" Height="30" VerticalContentAlignment="Center"/>
+        </StackPanel>
+
+        <Button Grid.Row="4" Content="Подтвердить заказ" Height="40" FontSize="16" VerticalAlignment="Bottom" Click="BtnConfirm_Click"/>
+    </Grid>
+</Window>

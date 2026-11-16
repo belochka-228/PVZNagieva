@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace WPF_Nagieva.Services
 {
-    internal class ApiClient
-
+    public class ApiClient
     {
         public static readonly HttpClient Client = new HttpClient
         {
-            BaseAddress = new System.Uri("http://localhost:5067/")
+            BaseAddress = new System.Uri("http://localhost:5067/") 
         };
+
+        public static string CurrentUserRole = "";
 
         public static void SetToken(string token)
         {
@@ -25,6 +26,7 @@ namespace WPF_Nagieva.Services
         public static void Logout()
         {
             Client.DefaultRequestHeaders.Authorization = null;
+            CurrentUserRole = "";
         }
     }
 }

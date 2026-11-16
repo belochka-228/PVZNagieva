@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using WPF_Nagieva.DTO;
+using WPF_Nagieva.Pages;
 using WPF_Nagieva.Services;
 
 namespace WPF_Nagieva
@@ -14,7 +15,6 @@ namespace WPF_Nagieva
         public MainWindow()
         {
             InitializeComponent();
-
             MainFrame.Navigate(new CatalogPage());
         }
 
@@ -27,6 +27,18 @@ namespace WPF_Nagieva
         {
             CartWindow cartWindow = new CartWindow();
             cartWindow.ShowDialog();
+        }
+
+        private void BtnFavorites_Click(object sender, RoutedEventArgs e)
+        {
+            var favWindow = new FavoritesWindow();
+            favWindow.ShowDialog();
+        }
+
+        private void BtnHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var historyWindow = new HistoryWindow();
+            historyWindow.ShowDialog();
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)

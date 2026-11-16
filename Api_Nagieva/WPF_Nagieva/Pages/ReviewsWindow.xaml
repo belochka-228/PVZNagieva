@@ -1,0 +1,61 @@
+﻿<Window x:Class="WPF_Nagieva.Pages.ReviewsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Nagieva.Pages"
+        mc:Ignorable="d"
+        Title="ReviewsWindow" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="TxtTitle" Grid.Row="0" Text="Отзывы о товаре" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <ListView x:Name="LvReviews" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="{Binding UserLogin}" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Rating, StringFormat='Оценка: {0} ⭐'}" Foreground="Orange" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Comment}" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" FontSize="11" Foreground="Gray"/>
+                        </StackPanel>
+
+                        <Button x:Name="BtnDelete" Grid.Column="1" Content="Удалить" Background="#FFE4E1" 
+                                Click="BtnDeleteReview_Click" VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Border x:Name="PanelAddReview" Grid.Row="2" Margin="0,15,0,0" BorderBrush="LightGray" BorderThickness="1" Padding="10">
+            <StackPanel>
+                <TextBlock Text="Оставить отзыв:" FontWeight="Bold" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Оценка (1-5):" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="CbRating" Width="100" Height="30">
+                        <ComboBoxItem Content="5" IsSelected="True"/>
+                        <ComboBoxItem Content="4"/>
+                        <ComboBoxItem Content="3"/>
+                        <ComboBoxItem Content="2"/>
+                        <ComboBoxItem Content="1"/>
+                    </ComboBox>
+                </StackPanel>
+                <TextBox x:Name="TxtComment" Height="60" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Padding="5" Margin="0,0,0,10"/>
+                <Button Content="Отправить отзыв" Width="150" Height="35" HorizontalAlignment="Right" Click="BtnAddReview_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

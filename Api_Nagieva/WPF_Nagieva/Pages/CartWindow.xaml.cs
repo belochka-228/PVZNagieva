@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using WPF_Nagieva.DTO;
+using WPF_Nagieva.Pages;
 using WPF_Nagieva.Services;
 
 namespace WPF_Nagieva
@@ -21,21 +24,22 @@ namespace WPF_Nagieva
             await LoadCartAsync();
         }
 
-        private async System.Threading.Tasks.Task LoadCartAsync()
+        private async Task LoadCartAsync()
         {
             try
             {
+                LvCart.ItemsSource = null;
                 var cart = await ApiClient.Client.GetFromJsonAsync<List<CartItemResponse>>("api/Cart");
-
-                LvCart.ItemsSource = cart;
 
                 if (cart != null)
                 {
+                    LvCart.ItemsSource = cart;
+
                     decimal total = cart.Sum(item => item.TotalPrice);
                     TxtTotal.Text = $"Итого: {total:C}";
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Ошибка загрузки корзины: " + ex.Message);
             }
@@ -48,17 +52,49 @@ namespace WPF_Nagieva
 
             if (item == null) return;
 
-            var response = await ApiClient.Client.DeleteAsync($"api/Cart/{item.ProductId}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                await LoadCartAsync();
+                var response = await ApiClient.Client.DeleteAsync($"api/Cart/{item.ProductId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadCartAsync();
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось удалить товар.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка удаления: " + ex.Message);
             }
         }
 
-        private void BtnCheckout_Click(object sender, RoutedEventArgs e)
+        private async void BtnCheckout_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Оформление заказа!");
+            if (LvCart.Items.Count == 0)
+            {
+                MessageBox.Show("Ваша корзина пуста! Добавьте товары перед оформлением.", "Внимание");
+                return;
+            }
+
+            decimal total = 0;
+            foreach (var item in LvCart.Items)
+            {
+                if (item is CartItemResponse cartItem)
+                {
+                    total += cartItem.TotalPrice;
+                }
+            }
+
+            CheckoutWindow checkout = new CheckoutWindow(total);
+
+            if (checkout.ShowDialog() == true)
+            {
+                MessageBox.Show("Спасибо за покупку! Ваш заказ оформлен.", "Успех");
+                await LoadCartAsync();
+            }
         }
     }
 }
