@@ -23,7 +23,7 @@
                             <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
 
-                        <Image Grid.Column="0" Width="100" Height="100" Stretch="Uniform" Source="{Binding ImagePath}"/>
+                        <Image Grid.Column="0" Width="100" Height="100" Stretch="Uniform" Source="{Binding ImagePath, StringFormat=Images/{0}}"/>
 
                         <StackPanel Grid.Column="1" Margin="15,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Name}" FontSize="20" FontWeight="Bold"/>
