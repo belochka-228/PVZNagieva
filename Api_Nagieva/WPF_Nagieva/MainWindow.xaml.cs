@@ -29,6 +29,12 @@ namespace WPF_Nagieva
             cartWindow.ShowDialog();
         }
 
+        private void BtnAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            var adminWindow = new AdminWindow();
+            adminWindow.ShowDialog();
+        }
+
         private void BtnFavorites_Click(object sender, RoutedEventArgs e)
         {
             var favWindow = new FavoritesWindow();
@@ -43,11 +49,25 @@ namespace WPF_Nagieva
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
+            if (BtnLogin.Content.ToString() == "Выйти")
+            {
+                ApiClient.Logout();
+
+                BtnAdmin.Visibility = Visibility.Collapsed;
+                BtnLogin.Content = "Войти";
+
+                MessageBox.Show("Вы вышли из аккаунта.");
+                return;
+            }
+
             LoginWindow loginWindow = new LoginWindow();
             if (loginWindow.ShowDialog() == true)
             {
                 BtnLogin.Content = "Выйти";
-                MessageBox.Show("Вы успешно вошли в систему!");
+                if (ApiClient.CurrentUserRole == "Admin")
+                {
+                    BtnAdmin.Visibility = Visibility.Visible;
+                }
             }
         }
     }

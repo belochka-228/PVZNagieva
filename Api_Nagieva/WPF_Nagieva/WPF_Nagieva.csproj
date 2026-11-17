@@ -92,6 +92,9 @@
     <Compile Include="DTO\FavoriteDTOs.cs" />
     <Compile Include="DTO\OrderDTOs.cs" />
     <Compile Include="DTO\ReviewDTOs.cs" />
+    <Compile Include="Pages\AdminWindow.xaml.cs">
+      <DependentUpon>AdminWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\CartWindow.xaml.cs">
       <DependentUpon>CartWindow.xaml</DependentUpon>
     </Compile>
@@ -117,6 +120,10 @@
     <Compile Include="Pages\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Pages\AdminWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\CartWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
