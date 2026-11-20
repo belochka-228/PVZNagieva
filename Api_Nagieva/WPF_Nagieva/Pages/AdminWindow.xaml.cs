@@ -28,12 +28,10 @@ namespace WPF_Nagieva.Pages
             InitializeComponent();
             Loaded += AdminWindow_Loaded;
         }
-
         private async void AdminWindow_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadAllDataAsync();
         }
-
         private async Task LoadAllDataAsync()
         {
             try
@@ -64,7 +62,7 @@ namespace WPF_Nagieva.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("ПОЛНАЯ ОШИБКА: " + ex.ToString(), "Ошибка загрузки");
+                MessageBox.Show("Ошибка: " + ex.Message);
             }
         }
         private async void BtnSaveGridChanges_Click(object sender, RoutedEventArgs e)

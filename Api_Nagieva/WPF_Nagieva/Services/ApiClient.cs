@@ -13,7 +13,7 @@ namespace WPF_Nagieva.Services
     {
         public static readonly HttpClient Client = new HttpClient
         {
-            BaseAddress = new System.Uri("http://localhost:5067/") 
+            BaseAddress = new Uri("http://localhost:5067/") 
         };
 
         public static string CurrentUserRole = "";
