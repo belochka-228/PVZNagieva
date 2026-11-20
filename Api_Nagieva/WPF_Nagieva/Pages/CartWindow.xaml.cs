@@ -121,6 +121,7 @@ namespace WPF_Nagieva
             {
                 MessageBox.Show("Спасибо за покупку! Ваш заказ оформлен.", "Успех");
                 await LoadCartAsync();
+                Close();
             }
         }
     }

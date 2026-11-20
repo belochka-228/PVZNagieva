@@ -12,7 +12,20 @@ namespace Api_Nagieva.Services
         {
             _context = context;
         }
-
+        public async Task<List<OrderResponse>> GetAllOrdersAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.Status)
+                .Include(o => o.User)
+                .Include(o => o.PickupPoint)
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new OrderResponse(
+                    o.Id, o.CreatedAt, o.TotalAmount, o.Status.Name, o.DeliveryType,
+                    o.DeliveryAddress, o.PickupPoint != null ? o.PickupPoint.Address : null, o.User.Login,
+                    o.OrderItems.Select(oi => new OrderItemResponse(oi.Product.Name, oi.Quantity, oi.PriceAtPurchase)).ToList()
+                )).ToListAsync();
+        }
         public async Task<OrderResponse> CreateOrderAsync(int userId, CreateOrderRequest request)
         {
             List<OrderItemRequest> itemsToBuy;
@@ -86,24 +99,27 @@ namespace Api_Nagieva.Services
 
             return await GetOrderByIdAsync(userId, order.Id) ?? throw new Exception("Ошибка при создании заказа");
         }
-
+        public async Task<List<OrderStatus>> GetStatusesAsync()
+        {
+            return await _context.OrderStatuses.ToListAsync();
+        }
         public async Task<List<OrderResponse>> GetUserOrdersAsync(int userId, bool newestFirst = true)
         {
-            var query = _context.Orders.Include(o => o.Status).Include(o => o.PickupPoint).Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+            var query = _context.Orders.Include(o => o.Status).Include(o => o.User).Include(o => o.PickupPoint).Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == userId);
             query = newestFirst ? query.OrderByDescending(o => o.CreatedAt) : query.OrderBy(o => o.CreatedAt);
 
             return await query.Select(o => new OrderResponse(o.Id, o.CreatedAt, o.TotalAmount, o.Status.Name, o.DeliveryType,
-                    o.DeliveryAddress, o.PickupPoint != null ? o.PickupPoint.Address : null,
+                    o.DeliveryAddress, o.PickupPoint != null ? o.PickupPoint.Address : null, o.User.Login,
                     o.OrderItems.Select(oi => new OrderItemResponse(oi.Product.Name, oi.Quantity, oi.PriceAtPurchase)).ToList())).ToListAsync();
         }
 
         public async Task<OrderResponse?> GetOrderByIdAsync(int userId, int orderId)
         {
-            return await _context.Orders.Include(o => o.Status).Include(o => o.PickupPoint).Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+            return await _context.Orders.Include(o => o.Status).Include(o => o.User).Include(o => o.PickupPoint).Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
                 .Where(o => o.Id == orderId && o.UserId == userId)
                 .Select(o => new OrderResponse(o.Id, o.CreatedAt, o.TotalAmount, o.Status.Name, o.DeliveryType,
-                    o.DeliveryAddress, o.PickupPoint != null ? o.PickupPoint.Address : null,
+                    o.DeliveryAddress, o.PickupPoint != null ? o.PickupPoint.Address : null, o.User.Login,
                     o.OrderItems.Select(oi => new OrderItemResponse(oi.Product.Name, oi.Quantity, oi.PriceAtPurchase)).ToList())).FirstOrDefaultAsync();
         }
 

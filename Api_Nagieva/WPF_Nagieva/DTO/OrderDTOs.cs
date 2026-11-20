@@ -33,6 +33,7 @@ namespace WPF_Nagieva.DTO
         public string DeliveryType { get; set; } = string.Empty;
         public string DeliveryAddress { get; set; } = string.Empty;
         public string PickupPointAddress { get; set; } = string.Empty;
+        public string UserLogin {  get; set; } = string.Empty;
 
         public List<OrderItemResponse> Items { get; set; } = new List<OrderItemResponse>();
     }

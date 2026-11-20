@@ -22,5 +22,23 @@ namespace Api_Nagieva.Services
             await _context.SaveChangesAsync();
             return new CategoryResponse(category.Id, category.Name);
         }
+        public async Task<bool> UpdateAsync(int id, string newName)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return false;
+
+            category.Name = newName;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return false;
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

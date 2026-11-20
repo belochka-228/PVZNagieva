@@ -9,129 +9,161 @@
     <Grid Margin="10">
         <TabControl>
 
-            <TabItem Header="Добавить товар">
+            <TabItem Header="Управление товарами">
                 <Grid Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtName" Grid.Row="0" Grid.Column="1" Height="30" Margin="0,5"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Content="Добавить товар" Width="150" Height="35" Background="#E8F5E9" Click="BtnAddProduct_Click"/>
+                        <Button Content="Сохранить изменения" Width="180" Height="35" Background="#FFF9C4" Margin="10,0,0,0" Click="BtnSaveGridChanges_Click"/>
+                    </StackPanel>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Цена:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtPrice" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,5"/>
-
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Описание:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtDesc" Grid.Row="2" Grid.Column="1" Height="60" TextWrapping="Wrap" Margin="0,5"/>
-
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Картинка (имя файла):" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtImage" Grid.Row="3" Grid.Column="1" Height="30" Margin="0,5" Text="default.jpg"/>
-
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="ID Категории:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtCategoryId" Grid.Row="4" Grid.Column="1" Height="30" Margin="0,5" Text="1"/>
-
-                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Кол-во на складе:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtStock" Grid.Row="5" Grid.Column="1" Height="30" Margin="0,5" Text="10"/>
-
-                    <CheckBox x:Name="ChkIsAvailable" Grid.Row="6" Grid.Column="1" Content="Доступен для покупки" IsChecked="True" Margin="0,5"/>
-
-                    <Button Grid.Row="7" Grid.Column="1" Content="Создать товар" Height="40" Width="200" HorizontalAlignment="Left" Margin="0,20,0,0" Background="#E8F5E9" Click="BtnCreateProduct_Click"/>
+                    <DataGrid x:Name="DgProducts" Grid.Row="1" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" SelectionMode="Single" 
+                              BorderBrush="LightGray" BorderThickness="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="*"/>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
+                            <DataGridTextColumn Header="Цена" Binding="{Binding Price}" Width="*"/>
+                            <DataGridTextColumn Header="Картинка" Binding="{Binding ImagePath}" Width="*"/>
+                            <DataGridComboBoxColumn Header="Категория" 
+                                                    SelectedValueBinding="{Binding CategoryId}" 
+                                                    DisplayMemberPath="Name" 
+                                                    SelectedValuePath="Id"
+                                                    Width="150"/>
+                            <DataGridTextColumn Header="Остаток" Binding="{Binding StockQuantity}" Width="*"/>
+                            <DataGridCheckBoxColumn Header="Доступен" Binding="{Binding IsAvailable}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
-
+            
             <TabItem Header="Управление заказами">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Все заказы пользователей:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-
-                    <ListView x:Name="LvAllOrders" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
-                        <ListView.ItemTemplate>
+                    <ListBox x:Name="LbAdminOrders" 
+                 Grid.Row="0" 
+                 HorizontalContentAlignment="Stretch"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 BorderBrush="LightGray" 
+                 BorderThickness="1">
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="5" Width="800">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="150"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Id}" FontWeight="Bold"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Status, StringFormat='Текущий статус: {0}'}" Foreground="DarkGreen"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" HorizontalAlignment="Right"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                <Border Margin="2,4" Padding="12" BorderBrush="#DCDCDC" BorderThickness="1" CornerRadius="4" Background="#FAFAFA">
+                                    <StackPanel>
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,6">
+                                            <TextBlock DockPanel.Dock="Left" FontSize="15" FontWeight="Bold">
+                                    <Run Text="{Binding Id, StringFormat='Заказ #{0}'}"/>
+                                    <Run Text="{Binding UserLogin, StringFormat=' — Клиент: {0}'}" FontWeight="Normal" Foreground="#444444"/>
+                                            </TextBlock>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Status}" Foreground="DarkGreen" FontWeight="Bold" FontSize="14"/>
+                                        </DockPanel>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
-                        <TextBlock Text="Выберите новый статус:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <ComboBox x:Name="CbNewStatus" Width="200" Height="30">
-                            <ComboBoxItem Content="Оформлен"/>
-                            <ComboBoxItem Content="В обработке"/>
-                            <ComboBoxItem Content="Передан в доставку"/>
-                            <ComboBoxItem Content="Готов к выдаче"/>
-                            <ComboBoxItem Content="Получен"/>
-                            <ComboBoxItem Content="Отменён"/>
-                        </ComboBox>
-                        <Button Content="Изменить статус" Height="30" Width="150" Margin="10,0,0,0" Click="BtnChangeStatus_Click"/>
+                                        <TextBlock Text="{Binding DeliveryType, StringFormat='Доставка: {0}'}" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding DeliveryAddress, StringFormat='Адрес: {0}'}" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding PickupPointAddress, StringFormat='ПВЗ: {0}'}" Foreground="Gray" Margin="0,0,0,8"/>
+
+                                        <TextBlock Text="Состав заказа:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                        <ItemsControl ItemsSource="{Binding Items}" Margin="10,0,0,6">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel LastChildFill="False" Margin="0,1">
+                                                        <TextBlock DockPanel.Dock="Left">
+                                                <Run Text="• "/>
+                                                <Run Text="{Binding ProductName}"/>
+                                                <Run Text="{Binding Quantity, StringFormat=' ({0} шт.)'}" Foreground="Gray"/>
+                                                        </TextBlock>
+                                                        <TextBlock DockPanel.Dock="Right" Text="{Binding PriceAtPurchase, StringFormat='{}{0:C}'}" Foreground="#333333"/>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <Separator Background="#E5E5E5" Margin="0,4"/>
+                                        <TextBlock Text="{Binding TotalAmount, StringFormat='Итого: {0:C}'}" FontWeight="Bold" FontSize="14" HorizontalAlignment="Right" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Right">
+                        <TextBlock Text="Новый статус:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="CbNewStatus" Width="200" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                        <Button Content="Изменить статус" Height="30" Padding="15,0" Margin="10,0,0,0" Click="BtnChangeStatus_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Добавить ПВЗ">
+            <TabItem Header="Категории">
                 <Grid Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Название ПВЗ:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtPpName" Grid.Row="0" Grid.Column="1" Height="30" Margin="0,5"/>
-
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Адрес:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtPpAddress" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,5"/>
-
-                    <Button Grid.Row="2" Grid.Column="1" Content="Создать ПВЗ" Height="40" Width="200" HorizontalAlignment="Left" Margin="0,20,0,0" Background="#E3F2FD" Click="BtnCreatePickupPoint_Click"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Добавить категорию">
-                <Grid Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="93*"/>
-                        <ColumnDefinition Width="511*"/>
-                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="Название категории:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtCategoryName" Grid.Row="0" Grid.Column="1" Height="30" Margin="0,5,0,5" Grid.ColumnSpan="2"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox x:Name="TxtCategoryName" Width="200" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <Button Content="Создать" Width="100" Height="30" Background="#FFF9C4" Click="BtnCreateCategory_Click"/>
+                    </StackPanel>
 
-                    <Button Grid.Row="1" Grid.Column="1" Content="Создать категорию" Height="40" Width="200" HorizontalAlignment="Left" Margin="0,153,0,133" Background="#FFF9C4" Click="BtnCreateCategory_Click" Grid.ColumnSpan="2"/>
+                    <DataGrid x:Name="DgCategories" Grid.Row="1" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" SelectionMode="Single" 
+                              BorderBrush="LightGray" BorderThickness="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="Сохранить изменения" Width="180" Height="35" Background="#E8F5E9" Click="BtnSaveCategories_Click"/>
+                        <Button Content="Удалить категорию" Width="180" Height="35" Background="#FFE4E1" Margin="10,0,0,0" Click="BtnDeleteCategory_Click"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
+
+            <TabItem Header="ПВЗ">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox x:Name="TxtPpName" Width="150" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="TxtPpAddress" Width="250" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <Button Content="Создать ПВЗ" Width="120" Height="30" Background="#E3F2FD" Click="BtnCreatePickupPoint_Click"/>
+                    </StackPanel>
+
+                    <DataGrid x:Name="DgPickupPoints" Grid.Row="1" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" SelectionMode="Single" 
+                              BorderBrush="LightGray" BorderThickness="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="Сохранить изменения" Width="180" Height="35" Background="#E8F5E9" Click="BtnSavePickupPoints_Click"/>
+                        <Button Content="Удалить ПВЗ" Width="180" Height="35" Background="#FFE4E1" Margin="10,0,0,0" Click="BtnDeletePickupPoint_Click"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+
         </TabControl>
     </Grid>
 </Window>

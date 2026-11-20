@@ -26,14 +26,14 @@ namespace Api_Nagieva.Services
                 query = query.Where(p => p.Price <= maxPrice.Value);
 
             return await query.Select(p => new ProductResponse(p.Id, p.Name, p.Description, p.Price, p.ImagePath,
-                p.CategoryId, p.Category.Name, p.StockQuantity,p.PackQuantity, p.IsAvailable,
+                p.CategoryId, p.Category.Name, p.StockQuantity,p.PackQuantity, p.IsAvailable && p.StockQuantity > 0,
                 p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0)).ToListAsync();
         }
         public async Task<ProductResponse?> GetByIdAsync(int id)
         {
             return await _context.Products.Include(p => p.Category).Include(p => p.Reviews).Where(p => p.Id == id)
                 .Select(p => new ProductResponse(p.Id, p.Name, p.Description, p.Price, p.ImagePath, p.CategoryId, p.Category.Name, p.StockQuantity,
-                    p.PackQuantity, p.IsAvailable, p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0)).FirstOrDefaultAsync();
+                    p.PackQuantity, p.IsAvailable && p.StockQuantity > 0, p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0)).FirstOrDefaultAsync();
         }
         public async Task<ProductResponse> CreateAsync(CreateProductRequest request)
         {
@@ -53,6 +53,23 @@ namespace Api_Nagieva.Services
             await _context.SaveChangesAsync();
 
             return (await GetByIdAsync(product.Id))!;
+        }
+        public async Task<bool> UpdateAsync(int id, CreateProductRequest request)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return false;
+
+            product.Name = request.Name;
+            product.Description = request.Description;
+            product.Price = request.Price;
+            product.ImagePath = request.ImagePath;
+            product.CategoryId = request.CategoryId;
+            product.StockQuantity = request.StockQuantity;
+            product.PackQuantity = request.PackQuantity;
+            product.IsAvailable = request.IsAvailable;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -3,6 +3,7 @@ using Api_Nagieva.Models;
 using Api_Nagieva.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api_Nagieva.Controllers
 {
@@ -23,7 +24,13 @@ namespace Api_Nagieva.Controllers
             int.TryParse(User.FindFirst("sub")?.Value, out int userId);
             return userId;
         }
-
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(orders);
+        }
         [HttpPost]
         public async Task<IActionResult> Create(CreateOrderRequest request)
         {
@@ -60,6 +67,14 @@ namespace Api_Nagieva.Controllers
             var success = await _orderService.UpdateStatusAsync(id, newStatus);
             if (!success) return BadRequest("Не удалось изменить статус (заказ или статус не найден)");
             return Ok("Статус обновлен");
+        }
+
+        [HttpGet("statuses")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStatuses()
+        {
+            var statuses = await _orderService.GetStatusesAsync();
+            return Ok(statuses);
         }
     }
 }

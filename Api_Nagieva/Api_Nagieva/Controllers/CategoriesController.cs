@@ -31,5 +31,23 @@ namespace Api_Nagieva.Controllers
             var category = await _categoryService.CreateAsync(request);
             return Ok(category);
         }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, [FromBody] string newName)
+        {
+            var success = await _categoryService.UpdateAsync(id, newName);
+            if (!success) return NotFound();
+            return Ok("Категория обновлена");
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _categoryService.DeleteAsync(id);
+            if (!success) return NotFound();
+            return Ok("Категория удалена");
+        }
     }
 }

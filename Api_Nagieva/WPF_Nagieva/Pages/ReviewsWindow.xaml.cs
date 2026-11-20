@@ -28,18 +28,16 @@ namespace WPF_Nagieva.Pages
             InitializeComponent();
             _productId = productId;
             TxtTitle.Text = $"Отзывы: {productName}";
-
             Loaded += ReviewsWindow_Loaded;
             
         }
 
         private async void ReviewsWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApiClient.CurrentUserRole == "Admin")
+            if (ApiClient.CurrentUserRole == "Admin" || ApiClient.Client.DefaultRequestHeaders.Authorization == null)
             {
                 PanelAddReview.Visibility = Visibility.Collapsed;
             }
-
             await LoadReviewsAsync();
         }
 

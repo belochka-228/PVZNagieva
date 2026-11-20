@@ -44,5 +44,14 @@ namespace Api_Nagieva.Controllers
             var createdProduct = await _productService.CreateAsync(request);
             return Ok(createdProduct);
         }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, CreateProductRequest request)
+        {
+            var success = await _productService.UpdateAsync(id, request);
+            if (!success) return NotFound("Товар не найден");
+            return Ok("Товар обновлен");
+        }
     }
 }

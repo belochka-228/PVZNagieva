@@ -29,5 +29,23 @@ namespace Api_Nagieva.Controllers
         {
             return Ok(await _service.CreateAsync(request));
         }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, CreatePickupPointRequest request)
+        {
+            var success = await _service.UpdateAsync(id, request);
+            if (!success) return NotFound();
+            return Ok("ПВЗ обновлен");
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _service.DeleteAsync(id);
+            if (!success) return NotFound();
+            return Ok("ПВЗ удален");
+        }
     }
 }

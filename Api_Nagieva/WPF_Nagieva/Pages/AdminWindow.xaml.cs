@@ -31,162 +31,207 @@ namespace WPF_Nagieva.Pages
 
         private async void AdminWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadOrdersAsync();
+            await LoadAllDataAsync();
         }
 
-        private async void BtnCreateProduct_Click(object sender, RoutedEventArgs e)
+        private async Task LoadAllDataAsync()
         {
             try
             {
-                if (!decimal.TryParse(TxtPrice.Text, out decimal price) ||
-                    !int.TryParse(TxtCategoryId.Text, out int catId) ||
-                    !int.TryParse(TxtStock.Text, out int stock))
+                var products = await ApiClient.Client.GetFromJsonAsync<List<ProductResponse>>("api/Products");
+                if (products != null) DgProducts.ItemsSource = products;
+
+                var orders = await ApiClient.Client.GetFromJsonAsync<List<OrderResponse>>("api/Orders/all");
+                if (orders != null) LbAdminOrders.ItemsSource = orders;
+
+                var statuses = await ApiClient.Client.GetFromJsonAsync<List<OrderStatusResponse>>("api/Orders/statuses");
+                if (statuses != null) CbNewStatus.ItemsSource = statuses;
+
+                var categories = await ApiClient.Client.GetFromJsonAsync<List<CategoryResponse>>("api/Categories");
+                if (categories != null)
                 {
-                    MessageBox.Show("Проверьте ввод цены, категории и остатков (должны быть числа).");
-                    return;
+                    DgCategories.ItemsSource = categories;
+
+                    var categoryColumn = DgProducts.Columns[5] as DataGridComboBoxColumn;
+                    if (categoryColumn != null)
+                    {
+                        categoryColumn.ItemsSource = categories;
+                    }
                 }
 
+                var pickupPoints = await ApiClient.Client.GetFromJsonAsync<List<PickupPointResponse>>("api/PickupPoints");
+                if (pickupPoints != null) DgPickupPoints.ItemsSource = pickupPoints;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("ПОЛНАЯ ОШИБКА: " + ex.ToString(), "Ошибка загрузки");
+            }
+        }
+        private async void BtnSaveGridChanges_Click(object sender, RoutedEventArgs e)
+        {
+            var products = DgProducts.ItemsSource as List<ProductResponse>;
+            if (products == null) return;
+
+            int success = 0, errors = 0;
+            foreach (var p in products)
+            {
                 var request = new
                 {
-                    Name = TxtName.Text,
-                    Description = TxtDesc.Text,
-                    Price = price,
-                    ImagePath = TxtImage.Text,
-                    CategoryId = catId,
-                    StockQuantity = stock,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ImagePath = p.ImagePath,
+                    CategoryId = p.CategoryId,
+                    StockQuantity = p.StockQuantity,
+                    PackQuantity = p.PackQuantity,
+                    IsAvailable = p.IsAvailable
+                };
+                var response = await ApiClient.Client.PutAsJsonAsync($"api/Products/{p.Id}", request);
+                if (response.IsSuccessStatusCode) success++; else errors++;
+            }
+            MessageBox.Show($"Сохранено: {success}. Ошибок: {errors}.");
+            await LoadAllDataAsync();
+        }
+
+        private async void BtnAddProduct_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var request = new
+                {
+                    Name = "Новый товар",
+                    Description = "",
+                    Price = 0,
+                    ImagePath = "default.jpg",
+                    CategoryId = 1,
+                    StockQuantity = 0,
                     PackQuantity = (int?)null,
-                    IsAvailable = ChkIsAvailable.IsChecked ?? false
+                    IsAvailable = true
                 };
 
                 var response = await ApiClient.Client.PostAsJsonAsync("api/Products", request);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    MessageBox.Show("Товар успешно добавлен!", "Успех");
-                    TxtName.Text = "";
-                    TxtPrice.Text = "";
-                    TxtDesc.Text = "";
+                    await LoadAllDataAsync();
                 }
                 else
                 {
-                    MessageBox.Show("Ошибка добавления. Возможно, неверный ID категории.", "Ошибка");
+                    MessageBox.Show("Ошибка создания товара.");
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка: " + ex.Message);
-            }
-        }
-
-        private async Task LoadOrdersAsync()
-        {
-            try
-            {
-                LvAllOrders.ItemsSource = null;
-                var orders = await ApiClient.Client.GetFromJsonAsync<List<OrderResponse>>("api/Orders");
-                if (orders != null)
-                {
-                    LvAllOrders.ItemsSource = orders;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка загрузки заказов: " + ex.Message);
             }
         }
 
         private async void BtnChangeStatus_Click(object sender, RoutedEventArgs e)
         {
-            var selectedOrder = LvAllOrders.SelectedItem as OrderResponse;
-            if (selectedOrder == null)
+            var order = LbAdminOrders.SelectedItem as OrderResponse;
+            var status = CbNewStatus.SelectedItem as OrderStatusResponse;
+
+            if (order == null || status == null)
             {
-                MessageBox.Show("Сначала выберите заказ в списке!");
+                MessageBox.Show("Выберите заказ в списке и новый статус!");
                 return;
             }
 
-            var selectedStatus = CbNewStatus.SelectedItem as ComboBoxItem;
-            if (selectedStatus == null)
+            var response = await ApiClient.Client.PatchAsJsonAsync($"api/Orders/{order.Id}/status", status.Name);
+            if (response.IsSuccessStatusCode)
             {
-                MessageBox.Show("Выберите новый статус из выпадающего списка!");
-                return;
+                MessageBox.Show("Статус изменен!");
+                await LoadAllDataAsync();
             }
+            else MessageBox.Show("Ошибка изменения статуса.");
+        }
 
-            string newStatus = selectedStatus.Content.ToString();
+        private async void BtnCreateCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtCategoryName.Text)) return;
 
-            try
+            var request = new { Name = TxtCategoryName.Text };
+            var response = await ApiClient.Client.PostAsJsonAsync("api/Categories", request);
+
+            if (response.IsSuccessStatusCode)
             {
-                var response = await ApiClient.Client.PatchAsJsonAsync($"api/Orders/{selectedOrder.Id}/status", newStatus);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    MessageBox.Show($"Статус заказа #{selectedOrder.Id} успешно изменен на '{newStatus}'!");
-                    await LoadOrdersAsync();
-                }
-                else
-                {
-                    MessageBox.Show("Не удалось изменить статус.");
-                }
+                MessageBox.Show("Категория создана!");
+                TxtCategoryName.Text = "";
+                await LoadAllDataAsync();
             }
-            catch (Exception ex)
+            else MessageBox.Show("Ошибка (возможно, категория уже есть).");
+        }
+        private async void BtnSaveCategories_Click(object sender, RoutedEventArgs e)
+        {
+            var categories = DgCategories.ItemsSource as List<CategoryResponse>;
+            if (categories == null) return;
+
+            int success = 0;
+            foreach (var cat in categories)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                var response = await ApiClient.Client.PutAsJsonAsync($"api/Categories/{cat.Id}", cat.Name);
+                if (response.IsSuccessStatusCode) success++;
+            }
+            MessageBox.Show($"Сохранено категорий: {success}");
+            await LoadAllDataAsync();
+        }
+        private async void BtnDeleteCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var cat = DgCategories.SelectedItem as CategoryResponse;
+            if (cat == null) { MessageBox.Show("Выберите категорию!"); return; }
+
+            var result = MessageBox.Show($"Удалить категорию '{cat.Name}'?", "Подтверждение", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                var response = await ApiClient.Client.DeleteAsync($"api/Categories/{cat.Id}");
+                if (response.IsSuccessStatusCode) await LoadAllDataAsync();
+                else MessageBox.Show("Нельзя удалить (возможно, к ней привязаны товары).");
             }
         }
 
         private async void BtnCreatePickupPoint_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var request = new
-                {
-                    Name = TxtPpName.Text,
-                    Address = TxtPpAddress.Text
-                };
+            if (string.IsNullOrWhiteSpace(TxtPpName.Text) || string.IsNullOrWhiteSpace(TxtPpAddress.Text)) return;
 
-                var response = await ApiClient.Client.PostAsJsonAsync("api/PickupPoints", request);
+            var request = new { Name = TxtPpName.Text, Address = TxtPpAddress.Text };
+            var response = await ApiClient.Client.PostAsJsonAsync("api/PickupPoints", request);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    MessageBox.Show("ПВЗ успешно создан!", "Успех");
-                    TxtPpName.Text = "";
-                    TxtPpAddress.Text = "";
-                }
-                else
-                {
-                    MessageBox.Show("Ошибка создания ПВЗ.", "Ошибка");
-                }
-            }
-            catch (Exception ex)
+            if (response.IsSuccessStatusCode)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                MessageBox.Show("ПВЗ создан!");
+                TxtPpName.Text = "";
+                TxtPpAddress.Text = "";
+                await LoadAllDataAsync();
             }
+            else MessageBox.Show("Ошибка создания ПВЗ.");
         }
-        private async void BtnCreateCategory_Click(object sender, RoutedEventArgs e)
+
+        private async void BtnSavePickupPoints_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(TxtCategoryName.Text))
-            {
-                MessageBox.Show("Введите название категории!");
-                return;
-            }
+            var points = DgPickupPoints.ItemsSource as List<PickupPointResponse>;
+            if (points == null) return;
 
-            try
+            int success = 0;
+            foreach (var pp in points)
             {
-                var request = new { Name = TxtCategoryName.Text };
-                var response = await ApiClient.Client.PostAsJsonAsync("api/Categories", request);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    MessageBox.Show("Категория успешно создана!", "Успех");
-                    TxtCategoryName.Text = "";
-                }
-                else
-                {
-                    MessageBox.Show("Ошибка создания категории (возможно, такое имя уже есть).", "Ошибка");
-                }
+                var request = new { Name = pp.Name, Address = pp.Address };
+                var response = await ApiClient.Client.PutAsJsonAsync($"api/PickupPoints/{pp.Id}", request);
+                if (response.IsSuccessStatusCode) success++;
             }
-            catch (Exception ex)
+            MessageBox.Show($"Сохранено ПВЗ: {success}");
+            await LoadAllDataAsync();
+        }
+        private async void BtnDeletePickupPoint_Click(object sender, RoutedEventArgs e)
+        {
+            var pp = DgPickupPoints.SelectedItem as PickupPointResponse;
+            if (pp == null) { MessageBox.Show("Выберите ПВЗ!"); return; }
+
+            var result = MessageBox.Show($"Удалить ПВЗ '{pp.Name}'?", "Подтверждение", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                var response = await ApiClient.Client.DeleteAsync($"api/PickupPoints/{pp.Id}");
+                if (response.IsSuccessStatusCode) await LoadAllDataAsync();
+                else MessageBox.Show("Нельзя удалить (возможно, к нему привязаны заказы).");
             }
         }
     }

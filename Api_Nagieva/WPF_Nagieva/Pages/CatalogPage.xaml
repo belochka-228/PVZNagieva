@@ -1,4 +1,4 @@
-﻿<Page
+﻿<Page 
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av" x:Class="WPF_Nagieva.CatalogPage"
@@ -11,7 +11,13 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
             <TextBox x:Name="TxtSearch" Width="250" Height="35" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="TxtSearch_TextChanged"/>
-            <ComboBox x:Name="cmbCategory" Width="Auto" />
+            <ComboBox x:Name="CmbCategory" Width="Auto" Height="35" DisplayMemberPath="Name" SelectedValuePath="Id" 
+                      SelectionChanged="CmbCategory_SelectionChanged"/>
+            <TextBlock Text="Цена от:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBox x:Name="TxtMinPrice" Width="80" Height="35" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="Price_TextChanged"/>
+
+            <TextBlock Text="до:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBox x:Name="TxtMaxPrice" Width="80" Height="35" VerticalContentAlignment="Center" Margin="0,0,10,0" TextChanged="Price_TextChanged"/>
         </StackPanel>
 
         <ListView x:Name="LvProducts" HorizontalContentAlignment="Stretch" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" av:ItemsSource="{av:SampleData ItemCount=2}" >
@@ -37,9 +43,9 @@
                             <TextBlock Text="{Binding Price}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right"/>
                             <TextBlock Text="{Binding StockQuantity, StringFormat=В наличии: \{0\} шт.}" Foreground="Gray" HorizontalAlignment="Right" Margin="0,5"/>
 
-                            <Button Content="В корзину" Height="30" Margin="0,10,0,0" Click="BtnAddToCart_Click"/>
-                            <Button Content="Купить сейчас" Height="30" Margin="0,5,0,0" Background="#E8F5E9" Click="BtnBuyNow_Click"/>
-                            <Button Content="В избранное" Height="30" Margin="0,5,0,0" Background="#FFF0F5" Click="BtnAddToFavorites_Click"/>
+                            <Button Content="В корзину" Height="30" Margin="0,10,0,0" Click="BtnAddToCart_Click" IsEnabled="{Binding IsAvailable}"/>
+                            <Button Content="Купить сейчас" Height="30" Margin="0,5,0,0" Background="#E8F5E9" Click="BtnBuyNow_Click" IsEnabled="{Binding IsAvailable}"/>
+                            <Button Content="В избранное" Height="30" Margin="0,5,0,0" Background="#FFF0F5" Click="BtnAddToFavorites_Click" IsEnabled="{Binding IsAvailable}"/>
                             <Button Content="Отзывы" Height="30" Margin="0,5,0,0" Background="#E0F7FA" Click="BtnReviews_Click"/>
                         </StackPanel>
                     </Grid>

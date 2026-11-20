@@ -17,34 +17,52 @@ namespace WPF_Nagieva
             InitializeComponent();
             MainFrame.Navigate(new CatalogPage());
         }
-
-        private void BtnCatalog_Click(object sender, RoutedEventArgs e)
+        private bool IsUserLoggedIn()
         {
-            MainFrame.Navigate(new CatalogPage());
+            if (ApiClient.Client.DefaultRequestHeaders.Authorization == null)
+            {
+                MessageBox.Show("Для этого действия необходимо войти в аккаунт!", "Требуется авторизация", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
         }
 
         private void BtnCart_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsUserLoggedIn()) return;
+
             CartWindow cartWindow = new CartWindow();
             cartWindow.ShowDialog();
+
+            MainFrame.Navigate(new CatalogPage());
         }
 
         private void BtnAdmin_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsUserLoggedIn()) return;
+
             var adminWindow = new AdminWindow();
             adminWindow.ShowDialog();
         }
 
         private void BtnFavorites_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsUserLoggedIn()) return;
+
             var favWindow = new FavoritesWindow();
             favWindow.ShowDialog();
+
+            MainFrame.Navigate(new CatalogPage());
         }
 
         private void BtnHistory_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsUserLoggedIn()) return;
+
             var historyWindow = new HistoryWindow();
             historyWindow.ShowDialog();
+
+            MainFrame.Navigate(new CatalogPage());
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
