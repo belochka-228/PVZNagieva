@@ -2,7 +2,7 @@
 
 namespace WPF_Nagieva.DTO
 {
-    public class ProductResponse
+    public partial class ProductResponse
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

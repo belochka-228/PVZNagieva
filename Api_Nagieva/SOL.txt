@@ -1,4 +1,4 @@
-CREATE DATABASE MarketplaceDB;
+--CREATE DATABASE MarketplaceDB;
 GO
 
 USE MarketplaceDB;
@@ -79,7 +79,7 @@ CREATE TABLE Orders (
     UserId INT NOT NULL,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     StatusId INT NOT NULL,
-    DeliveryType NVARCHAR(50) NOT NULL CHECK (DeliveryType IN ('Courier', 'Pickup')),
+    DeliveryType NVARCHAR(50) NOT NULL CHECK (DeliveryType IN (N'Courier', N'Pickup')),
     PickupPointId INT NULL,
     DeliveryAddress NVARCHAR(255) NULL,
     TotalAmount DECIMAL(18,2) NOT NULL,
@@ -97,50 +97,54 @@ CREATE TABLE OrderItems (
     FOREIGN KEY (OrderId) REFERENCES Orders(Id),
     FOREIGN KEY (ProductId) REFERENCES Products(Id)
 );
+GO
 
-INSERT INTO Roles (Name) VALUES ('Admin'), ('User');
+INSERT INTO Roles (Name) VALUES 
+(N'Admin'), 
+(N'User');
 
-INSERT INTO Users (Login, PasswordHash, RoleId) VALUES
-('nagiev_prime', 'hash_of_password_123', 1),
-('student', 'hash_of_password_321', 2),
-('vasya_pokupatel', 'hash_of_password_444', 2);
+INSERT INTO Users (Login, PasswordHash, RoleId) VALUES 
+(N'nagiev_prime', N'hash_of_password_123', 1), 
+(N'student', N'hash_of_password_321', 2), 
+(N'vasya_pokupatel', N'hash_of_password_444', 2);
 
-INSERT INTO Categories (Name) VALUES
-('Сыры'),
-('Электроника'),
-('Мерч');
+INSERT INTO Categories (Name) VALUES 
+(N'Сыры'), 
+(N'Электроника'), 
+(N'Мерч');
 
-INSERT INTO Products (Name, Description, Price, ImagePath, CategoryId, StockQuantity, PackQuantity, IsAvailable) VALUES
-('Камамбер в кармане', 'Отличный сыр от праймового Нагиева', 450.00, 'camembert.jpg', 1, 50, 1, 1),
-('Ноутбук для кодинга API', 'Потянет и базу данных, и WPF', 85000.00, 'laptop.jpg', 2, 5, NULL, 1),
-('Футболка GMWOG', 'Для настоящих инвесторов', 1200.00, 'tshirt.jpg', 3, 0, NULL, 0);
+INSERT INTO Products (Name, Description, Price, ImagePath, CategoryId, StockQuantity, PackQuantity, IsAvailable) VALUES 
+(N'Камамбер в кармане', N'Отличный сыр от праймового Нагиева', 450.00, N'camembert.jpg', 1, 50, 1, 1), 
+(N'Ноутбук для кодинга API', N'Потянет и базу данных, и WPF', 85000.00, N'laptop.jpg', 2, 5, NULL, 1), 
+(N'Футболка GMWOG', N'Для настоящих инвесторов', 1200.00, N'tshirt.jpg', 3, 0, NULL, 0);
 
-INSERT INTO PickupPoints (Name, Address) VALUES
-('ПВЗ Дубай-Центр', 'г. Дубай, Бурдж-Халифа, 1'),
-('ПВЗ у Васи', 'г. Москва, ул. Пушкина, дом Колотушкина');
+INSERT INTO PickupPoints (Name, Address) VALUES 
+(N'ПВЗ Дубай-Центр', N'г. Дубай, Бурдж-Халифа, 1'), 
+(N'ПВЗ у Васи', N'г. Москва, ул. Пушкина, дом Колотушкина');
 
-INSERT INTO OrderStatuses (Name) VALUES
-('Оформлен'),
-('В обработке'),
-('Передан в доставку'),
-('Готов к выдаче'),
-('Получен'),
-('Отменён');
+INSERT INTO OrderStatuses (Name) VALUES 
+(N'Оформлен'), 
+(N'В обработке'), 
+(N'Передан в доставку'), 
+(N'Готов к выдаче'), 
+(N'Получен'), 
+(N'Отменён');
 
-INSERT INTO Reviews (ProductId, UserId, Rating, Comment) VALUES
-(1, 2, 5, 'Сыр просто пушка, 4.9 надо брать!'),
-(2, 3, 1, '1.3... Ладно, сегодня без приключений, не включается.');
+INSERT INTO Reviews (ProductId, UserId, Rating, Comment) VALUES 
+(1, 2, 5, N'Сыр просто пушка, 4.9 надо брать!'), 
+(2, 3, 1, N'1.3... Ладно, сегодня без приключений, не включается.');
 
-INSERT INTO CartItems (UserId, ProductId, Quantity) VALUES
+INSERT INTO CartItems (UserId, ProductId, Quantity) VALUES 
 (2, 1, 2);
 
-INSERT INTO Favorites (UserId, ProductId) VALUES
+INSERT INTO Favorites (UserId, ProductId) VALUES 
 (3, 2);
 
-INSERT INTO Orders (UserId, StatusId, DeliveryType, PickupPointId, DeliveryAddress, TotalAmount) VALUES
-(2, 5, 'Pickup', 2, NULL, 450.00),
-(3, 2, 'Courier', NULL, 'г. Москва, проспект Мира, 10', 85000.00);
+INSERT INTO Orders (UserId, StatusId, DeliveryType, PickupPointId, DeliveryAddress, TotalAmount) VALUES 
+(2, 5, N'Pickup', 2, NULL, 450.00), 
+(3, 2, N'Courier', NULL, N'г. Москва, проспект Мира, 10', 85000.00);
 
-INSERT INTO OrderItems (OrderId, ProductId, Quantity, PriceAtPurchase) VALUES
-(1, 1, 1, 450.00),
+INSERT INTO OrderItems (OrderId, ProductId, Quantity, PriceAtPurchase) VALUES 
+(1, 1, 1, 450.00), 
 (2, 2, 1, 85000.00);
+GO

@@ -23,26 +23,44 @@
         <ListView x:Name="LvOrders" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Expander Margin="5" BorderBrush="LightGray" BorderThickness="1" Padding="5">
-                        <Expander.Header>
-                            <Grid Width="700">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="150"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding Id}" FontWeight="Bold"/>
-                                <TextBlock Grid.Column="1" Text="{Binding CreatedAt}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Status}" Foreground="DarkGreen" FontWeight="Bold"/>
-                                <TextBlock Grid.Column="3" Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" FontWeight="Bold" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </Expander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Margin="5" BorderBrush="LightGray" BorderThickness="1" Padding="5">
+                            <StackPanel>
+                                <Grid Width="700">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Id}" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding CreatedAt}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Status}" Foreground="DarkGreen" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    
+                                </Grid>
+                            </StackPanel>
+                        </Border>
 
-                        <StackPanel Margin="20,10,0,0">
+                        <StackPanel Grid.Row="1" Margin="20,10,0,0">
                             <TextBlock Text="{Binding DeliveryType, StringFormat='Доставка: {0}'}" Foreground="Gray" Margin="0,0,0,5"/>
                             <TextBlock Text="{Binding DeliveryAddress, StringFormat='Адрес: {0}'}" Foreground="Gray" Margin="0,0,0,10"/>
 
+                            <Grid Width="600" Margin="2,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Товар" FontWeight="Bold" Foreground="#2C3E50"/>
+                                <TextBlock Grid.Column="1" Text="Кол-во" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="Цена" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Right"/>
+                            </Grid>
+                            
                             <ListView ItemsSource="{Binding Items}" BorderThickness="0" Background="#f9f9f9">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
@@ -60,7 +78,7 @@
                                 </ListView.ItemTemplate>
                             </ListView>
                         </StackPanel>
-                    </Expander>
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

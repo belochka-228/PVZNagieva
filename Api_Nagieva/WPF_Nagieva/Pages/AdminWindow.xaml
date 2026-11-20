@@ -118,17 +118,18 @@
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="93*"/>
+                        <ColumnDefinition Width="511*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Название категории:" VerticalAlignment="Center"/>
-                    <TextBox x:Name="TxtCategoryName" Grid.Row="0" Grid.Column="1" Height="30" Margin="0,5"/>
+                    <TextBlock Grid.Column="0" Text="Название категории:" VerticalAlignment="Center"/>
+                    <TextBox x:Name="TxtCategoryName" Grid.Row="0" Grid.Column="1" Height="30" Margin="0,5,0,5" Grid.ColumnSpan="2"/>
 
-                    <Button Grid.Row="1" Grid.Column="1" Content="Создать категорию" Height="40" Width="200" HorizontalAlignment="Left" Margin="0,20,0,0" Background="#FFF9C4" Click="BtnCreateCategory_Click"/>
+                    <Button Grid.Row="1" Grid.Column="1" Content="Создать категорию" Height="40" Width="200" HorizontalAlignment="Left" Margin="0,153,0,133" Background="#FFF9C4" Click="BtnCreateCategory_Click" Grid.ColumnSpan="2"/>
                 </Grid>
             </TabItem>
         </TabControl>

@@ -16,6 +16,7 @@ namespace WPF_Nagieva
         {
             InitializeComponent();
             Loaded += CatalogPage_Loaded;
+            
         }
 
         private async void CatalogPage_Loaded(object sender, RoutedEventArgs e)
@@ -43,11 +44,6 @@ namespace WPF_Nagieva
             }
         }
 
-        private async void BtnSearch_Click(object sender, RoutedEventArgs e)
-        {
-            await LoadProductsAsync(TxtSearch.Text);
-        }
-
         private async void BtnAddToCart_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -63,6 +59,10 @@ namespace WPF_Nagieva
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show($"Товар '{product.Name}' добавлен в корзину!");
+                }
+                else if(product.StockQuantity == 0)
+                {
+                    MessageBox.Show("Товара нет в наличии", "Ошибка");
                 }
                 else
                 {
@@ -131,6 +131,17 @@ namespace WPF_Nagieva
             {
                 MessageBox.Show("Ошибка: " + ex.Message);
             }
+        }
+
+        private async void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            await LoadProductsAsync(TxtSearch.Text);
+
+        }
+        private async Task cmbCategory_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
+            await LoadProductsAsync();
         }
     }
 }

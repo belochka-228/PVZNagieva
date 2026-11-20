@@ -54,7 +54,8 @@ namespace WPF_Nagieva
 
             try
             {
-                var response = await ApiClient.Client.DeleteAsync($"api/Cart/{item.ProductId}");
+                var request = new { ProductId = item.ProductId, Quantity = item.Quantity - 1 };
+                var response = await ApiClient.Client.PutAsJsonAsync("api/Cart/update", request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -62,12 +63,38 @@ namespace WPF_Nagieva
                 }
                 else
                 {
-                    MessageBox.Show("Не удалось удалить товар.");
+                    MessageBox.Show("Не удалось изменить количество (возможно, достигнут лимит).");
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка удаления: " + ex.Message);
+            }
+        }
+        private async void BtnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.DataContext as CartItemResponse;
+
+            if (item == null) return;
+
+            try
+            {
+                var request = new { ProductId = item.ProductId, Quantity = item.Quantity + 1 };
+                var response = await ApiClient.Client.PutAsJsonAsync("api/Cart/update", request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadCartAsync();
+                }
+                else
+                {
+                    MessageBox.Show("На складе не хватает товара!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка добавления: " + ex.Message);
             }
         }
 

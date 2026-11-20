@@ -15,7 +15,7 @@
 
         <TextBlock x:Name="TxtTitle" Grid.Row="0" Text="Отзывы о товаре" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
 
-        <ListView x:Name="LvReviews" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
+        <ListView x:Name="LvReviews" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" d:ItemsSource="{d:SampleData ItemCount=5}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="5">
@@ -34,13 +34,13 @@
                         </StackPanel>
 
                         <Button x:Name="BtnDelete" Grid.Column="1" Content="Удалить" Background="#FFE4E1" 
-                                Click="BtnDeleteReview_Click" VerticalAlignment="Center"/>
+                                Click="BtnDeleteReview_Click" VerticalAlignment="Center" Visibility="Visible"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <Border x:Name="PanelAddReview" Grid.Row="2" Margin="0,15,0,0" BorderBrush="LightGray" BorderThickness="1" Padding="10">
+        <Border x:Name="PanelAddReview" Grid.Row="2" Margin="0,15,0,0" BorderBrush="LightGray" BorderThickness="1" Padding="10" Visibility="Visible">
             <StackPanel>
                 <TextBlock Text="Оставить отзыв:" FontWeight="Bold" Margin="0,0,0,10"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">

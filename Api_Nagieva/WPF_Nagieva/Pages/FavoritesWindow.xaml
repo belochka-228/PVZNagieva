@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="FavoritesWindow" Height="450" Width="800">
     <Grid Margin="10">
-        <ListView x:Name="LvFavorites" BorderBrush="LightGray" BorderThickness="1">
+        <ListView x:Name="LvFavorites" BorderBrush="LightGray" BorderThickness="1" d:ItemsSource="{d:SampleData ItemCount=5}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="5">

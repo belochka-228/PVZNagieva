@@ -78,7 +78,7 @@ namespace WPF_Nagieva.Pages
             }
         }
 
-        private async System.Threading.Tasks.Task LoadOrdersAsync()
+        private async Task LoadOrdersAsync()
         {
             try
             {

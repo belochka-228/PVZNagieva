@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using WPF_Nagieva.DTO;
@@ -21,7 +22,7 @@ namespace WPF_Nagieva.Pages
             await LoadFavoritesAsync();
         }
 
-        private async System.Threading.Tasks.Task LoadFavoritesAsync()
+        private async Task LoadFavoritesAsync()
         {
             try
             {

@@ -30,11 +30,12 @@ namespace WPF_Nagieva.Pages
             TxtTitle.Text = $"Отзывы: {productName}";
 
             Loaded += ReviewsWindow_Loaded;
+            
         }
 
         private async void ReviewsWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(ApiClient.CurrentUserRole))
+            if (ApiClient.CurrentUserRole == "Admin")
             {
                 PanelAddReview.Visibility = Visibility.Collapsed;
             }
@@ -42,7 +43,7 @@ namespace WPF_Nagieva.Pages
             await LoadReviewsAsync();
         }
 
-        private async System.Threading.Tasks.Task LoadReviewsAsync()
+        private async Task LoadReviewsAsync()
         {
             try
             {
@@ -55,6 +56,8 @@ namespace WPF_Nagieva.Pages
 
                     if (ApiClient.CurrentUserRole != "Admin")
                     {
+                        LvReviews.UpdateLayout();
+
                         foreach (var item in reviews)
                         {
                             var container = LvReviews.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
@@ -116,7 +119,7 @@ namespace WPF_Nagieva.Pages
             var button = sender as Button;
             var review = button?.DataContext as ReviewResponse;
             if (review == null) return;
-
+            
             var result = MessageBox.Show("Вы уверены, что хотите удалить этот отзыв?", "Подтверждение", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
@@ -134,9 +137,9 @@ namespace WPF_Nagieva.Pages
 
         private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
         {
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
             {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                var child = VisualTreeHelper.GetChild(parent, i);
                 if (child is T typedChild) return typedChild;
                 var result = FindVisualChild<T>(child);
                 if (result != null) return result;
