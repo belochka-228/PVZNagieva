@@ -14,17 +14,17 @@
             <ComboBox x:Name="cmbCategory" Width="Auto" />
         </StackPanel>
 
-        <ListView x:Name="LvProducts" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" av:ItemsSource="{av:SampleData ItemCount=2}" >
+        <ListView x:Name="LvProducts" HorizontalContentAlignment="Stretch" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" av:ItemsSource="{av:SampleData ItemCount=2}" >
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="120"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Image Grid.Column="0" Width="100" Height="100" Stretch="Uniform" Source="{Binding ImagePathcover}"/>
+                        <Image Grid.Column="0" Stretch="Uniform" Source="{Binding ImagePathcover}"/>
 
                         <StackPanel Grid.Column="1" Margin="15,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Name}" FontSize="20" FontWeight="Bold"/>

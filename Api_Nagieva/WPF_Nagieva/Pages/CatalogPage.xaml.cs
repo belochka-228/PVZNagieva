@@ -97,7 +97,7 @@ namespace WPF_Nagieva
                 MessageBox.Show("Покупка совершена!");
             }
         }
-        private void BtnReviews_Click(object sender, RoutedEventArgs e)
+        private async void BtnReviews_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var product = button?.DataContext as ProductResponse;
@@ -105,6 +105,7 @@ namespace WPF_Nagieva
 
             var reviewsWindow = new ReviewsWindow(product.Id, product.Name);
             reviewsWindow.ShowDialog();
+            await LoadProductsAsync();
         }
 
         private async void BtnAddToFavorites_Click(object sender, RoutedEventArgs e)
