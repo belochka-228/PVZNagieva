@@ -103,11 +103,6 @@ INSERT INTO Roles (Name) VALUES
 (N'Admin'), 
 (N'User');
 
-INSERT INTO Users (Login, PasswordHash, RoleId) VALUES 
-(N'nagiev_prime', N'hash_of_password_123', 1), 
-(N'student', N'hash_of_password_321', 2), 
-(N'vasya_pokupatel', N'hash_of_password_444', 2);
-
 INSERT INTO Categories (Name) VALUES 
 (N'Сыры'), 
 (N'Электроника'), 
@@ -119,8 +114,8 @@ INSERT INTO Products (Name, Description, Price, ImagePath, CategoryId, StockQuan
 (N'Футболка GMWOG', N'Для настоящих инвесторов', 1200.00, N'tshirt.jpg', 3, 0, NULL, 0);
 
 INSERT INTO PickupPoints (Name, Address) VALUES 
-(N'ПВЗ Дубай-Центр', N'г. Дубай, Бурдж-Халифа, 1'), 
-(N'ПВЗ у Васи', N'г. Москва, ул. Пушкина, дом Колотушкина');
+(N'ПВЗ Ромашка', N'г. Москва, Выборгская 4к1'), 
+(N'ПВЗ Оранж', N'г. Москва, ул. Пушкина, 25');
 
 INSERT INTO OrderStatuses (Name) VALUES 
 (N'Оформлен'), 
@@ -129,22 +124,3 @@ INSERT INTO OrderStatuses (Name) VALUES
 (N'Готов к выдаче'), 
 (N'Получен'), 
 (N'Отменён');
-
-INSERT INTO Reviews (ProductId, UserId, Rating, Comment) VALUES 
-(1, 2, 5, N'Сыр просто пушка, 4.9 надо брать!'), 
-(2, 3, 1, N'1.3... Ладно, сегодня без приключений, не включается.');
-
-INSERT INTO CartItems (UserId, ProductId, Quantity) VALUES 
-(2, 1, 2);
-
-INSERT INTO Favorites (UserId, ProductId) VALUES 
-(3, 2);
-
-INSERT INTO Orders (UserId, StatusId, DeliveryType, PickupPointId, DeliveryAddress, TotalAmount) VALUES 
-(2, 5, N'Pickup', 2, NULL, 450.00), 
-(3, 2, N'Courier', NULL, N'г. Москва, проспект Мира, 10', 85000.00);
-
-INSERT INTO OrderItems (OrderId, ProductId, Quantity, PriceAtPurchase) VALUES 
-(1, 1, 1, 450.00), 
-(2, 2, 1, 85000.00);
-GO

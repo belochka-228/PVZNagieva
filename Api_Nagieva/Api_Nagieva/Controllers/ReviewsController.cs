@@ -31,9 +31,16 @@ namespace Api_Nagieva.Controllers
         {
             if (!int.TryParse(User.FindFirst("sub")?.Value, out int userId))
                 return Unauthorized();
-
-            var review = await _reviewService.CreateAsync(userId, request);
-            return Ok(review);
+            try
+            {
+                var review = await _reviewService.CreateAsync(userId, request);
+                return Ok(review);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [HttpDelete("{id}")]

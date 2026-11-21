@@ -50,11 +50,8 @@ namespace WPF_Nagieva.Pages
                 {
                     DgCategories.ItemsSource = categories;
 
-                    var categoryColumn = DgProducts.Columns[5] as DataGridComboBoxColumn;
-                    if (categoryColumn != null)
-                    {
-                        categoryColumn.ItemsSource = categories;
-                    }
+                    if (ColCategory.ItemsSource == null)
+                        ColCategory.ItemsSource = categories;
                 }
 
                 var pickupPoints = await ApiClient.Client.GetFromJsonAsync<List<PickupPointResponse>>("api/PickupPoints");
@@ -67,6 +64,8 @@ namespace WPF_Nagieva.Pages
         }
         private async void BtnSaveGridChanges_Click(object sender, RoutedEventArgs e)
         {
+            DgProducts.CommitEdit(DataGridEditingUnit.Row, true);
+
             var products = DgProducts.ItemsSource as List<ProductResponse>;
             if (products == null) return;
 
@@ -122,6 +121,7 @@ namespace WPF_Nagieva.Pages
             {
                 MessageBox.Show("Ошибка: " + ex.Message);
             }
+            await LoadAllDataAsync();
         }
 
         private async void BtnChangeStatus_Click(object sender, RoutedEventArgs e)

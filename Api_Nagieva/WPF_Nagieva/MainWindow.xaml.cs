@@ -43,6 +43,8 @@ namespace WPF_Nagieva
 
             var adminWindow = new AdminWindow();
             adminWindow.ShowDialog();
+
+            MainFrame.Navigate(new CatalogPage());
         }
 
         private void BtnFavorites_Click(object sender, RoutedEventArgs e)

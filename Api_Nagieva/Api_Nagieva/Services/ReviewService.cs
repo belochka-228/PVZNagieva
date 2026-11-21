@@ -18,6 +18,11 @@ namespace Api_Nagieva.Services
         }
         public async Task<ReviewResponse> CreateAsync(int userId, CreateReviewRequest request)
         {
+            var comm = await _context.Reviews.Include(r => r.Product).FirstOrDefaultAsync(r => r.UserId == userId && r.ProductId == request.ProductId);
+            if (comm != null)
+            {
+                throw new Exception($"Вы уже оставляли отзыв на товар {comm.Product.Name}");
+            }
             var review = new Review
             {
                 ProductId = request.ProductId,

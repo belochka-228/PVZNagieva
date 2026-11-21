@@ -22,21 +22,23 @@
                     </StackPanel>
 
                     <DataGrid x:Name="DgProducts" Grid.Row="1" AutoGenerateColumns="False" 
-                              CanUserAddRows="False" SelectionMode="Single" 
-                              BorderBrush="LightGray" BorderThickness="1">
+          CanUserAddRows="False" SelectionMode="Single" 
+          BorderBrush="LightGray" BorderThickness="1">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="*"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
                             <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
-                            <DataGridTextColumn Header="Цена" Binding="{Binding Price}" Width="*"/>
-                            <DataGridTextColumn Header="Картинка" Binding="{Binding ImagePath}" Width="*"/>
-                            <DataGridComboBoxColumn Header="Категория" 
-                                                    SelectedValueBinding="{Binding CategoryId}" 
-                                                    DisplayMemberPath="Name" 
-                                                    SelectedValuePath="Id"
-                                                    Width="150"/>
-                            <DataGridTextColumn Header="Остаток" Binding="{Binding StockQuantity}" Width="*"/>
-                            <DataGridCheckBoxColumn Header="Доступен" Binding="{Binding IsAvailable}" Width="*"/>
+                            <DataGridTextColumn Header="Цена" Binding="{Binding Price}" Width="80"/>
+                            <DataGridTextColumn Header="Картинка" Binding="{Binding ImagePath}" Width="100"/>
+
+                            <DataGridComboBoxColumn x:Name="ColCategory" Header="Категория" 
+                                SelectedValueBinding="{Binding CategoryId}" 
+                                DisplayMemberPath="Name" 
+                                SelectedValuePath="Id"
+                                Width="120"/>
+
+                            <DataGridTextColumn Header="Остаток" Binding="{Binding StockQuantity}" Width="70"/>
+                            <DataGridCheckBoxColumn Header="Доступен" Binding="{Binding IsAvailable}" Width="70"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

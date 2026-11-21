@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http.Json;
 using System.Windows;
+using System.Windows.Navigation;
 using WPF_Nagieva.DTO;
 using WPF_Nagieva.Services;
 
@@ -43,7 +44,7 @@ namespace WPF_Nagieva
             }
         }
 
-        private async void BtnRegister_Click(object sender, RoutedEventArgs e)
+        private async void BtnReg_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -56,8 +57,10 @@ namespace WPF_Nagieva
                 }
                 else
                 {
-                    MessageBox.Show("Ошибка регистрации. Возможно, логин занят.", "Ошибка");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Код: {response.StatusCode}\nОтвет сервера: {errorContent}", "Ошибка");
                 }
+
             }
             catch (Exception ex)
             {

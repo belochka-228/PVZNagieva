@@ -25,9 +25,12 @@ namespace Api_Nagieva.Services
             if (maxPrice.HasValue)
                 query = query.Where(p => p.Price <= maxPrice.Value);
 
-            return await query.Select(p => new ProductResponse(p.Id, p.Name, p.Description, p.Price, p.ImagePath,
-                p.CategoryId, p.Category.Name, p.StockQuantity,p.PackQuantity, p.IsAvailable && p.StockQuantity > 0,
-                p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0)).ToListAsync();
+            return await query.Select(p => new ProductResponse(
+                p.Id, p.Name, p.Description, p.Price, p.ImagePath,
+                p.CategoryId, p.Category.Name,
+                p.StockQuantity, p.PackQuantity, p.IsAvailable && p.StockQuantity > 0,
+                p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0
+            )).ToListAsync();
         }
         public async Task<ProductResponse?> GetByIdAsync(int id)
         {
@@ -56,6 +59,8 @@ namespace Api_Nagieva.Services
         }
         public async Task<bool> UpdateAsync(int id, CreateProductRequest request)
         {
+            Console.WriteLine($"ОБНОВЛЕНИЕ ТОВАРА {id}: Пришел CategoryId = {request.CategoryId}");
+
             var product = await _context.Products.FindAsync(id);
             if (product == null) return false;
 
